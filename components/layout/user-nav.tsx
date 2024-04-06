@@ -1,4 +1,5 @@
-"use client";
+'use client';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,20 +12,48 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut, useSession } from "next-auth/react";
-export function UserNav() {
-  const { data: session } = useSession();
-  if (session) {
+import { User } from '@/constants/data';
+
+type AuthStateOptions = {
+  onUserChanged?: (user: User | null) => Promise<void>;
+};
+
+type Auth = {
+  currentUser: () => User | null;
+  onAuthStateChanged: (
+    auth: Auth,
+    onNext: (user: User | null) => void,
+    onError: (error: Error) => void
+  ) => () => void;
+};
+
+type UserNavProps = {
+  auth?: Auth;
+  options?: AuthStateOptions;
+};
+
+const UserNav = ({ auth, options }: { auth: Auth, options?: AuthStateOptions }) => {
+  const { user, loading, error } = useAuthState(auth, options);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  if (user) {
     return (
-      <DropdownMenu>
+<DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Button variant="outline" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={session.user?.image ?? ""}
-                alt={session.user?.name ?? ""}
+                src={user?.image ?? ""}
+                alt={user?.name ?? ""}
               />
-              <AvatarFallback>{session.user?.name?.[0]}</AvatarFallback>
+              <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
@@ -32,10 +61,10 @@ export function UserNav() {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
-                {session.user?.name}
+                {user?.name}
               </p>
               <p className="text-xs leading-none text-muted-foreground">
-                {session.user?.email}
+                {user?.email}
               </p>
             </div>
           </DropdownMenuLabel>
@@ -56,12 +85,50 @@ export function UserNav() {
             <DropdownMenuItem>New Team</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => signOut()}>
+          <DropdownMenuItem >
             Log out
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
-    );
+      </DropdownMenu>    );
   }
-}
+
+  return null;
+};
+
+export default UserNav;
+
+const useAuthState = (auth: Auth, options?: AuthStateOptions) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const listener = auth?.onAuthStateChanged(
+      auth,
+      async (user: User | null) => {
+        if (options?.onUserChanged) {
+          try {
+            await options.onUserChanged(user);
+          } catch (e) {
+            setError(e as Error);
+          }
+        }
+        setUser(user);
+        setLoading(false);
+      },
+      (error) => {
+        setError(error);
+        setLoading(false);
+      }
+    );
+
+    return () => {
+      if (typeof listener === 'function') {
+        listener();
+      }
+    };
+  }, [auth, options]);
+
+  return { user, loading, error };
+};
