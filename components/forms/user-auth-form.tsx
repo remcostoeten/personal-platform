@@ -1,89 +1,77 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
+
+  import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import GoogleSignInButton from "../github-auth-button";
+import SocialSignInButton from "../github-auth-button";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Enter a valid email address" }),
-});
+  export default function UserAuthForm() {
+    const searchParams = useSearchParams();
+    const [loading, setLoading] = useState(false);
+    const [email, setEmail] = useState("demo@gmail.com");
+    const [password, setPassword] = useState("");
+    const router = useRouter();
 
-type UserFormValue = z.infer<typeof formSchema>;
+    const onSubmit = async (event: { preventDefault: () => void; }) => {
+      event.preventDefault();
+      try {
+        const auth = getAuth();
+        await signInWithEmailAndPassword(auth, email, password);
+        router.push('dashboard');
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-export default function UserAuthForm() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
-  const [loading, setLoading] = useState(false);
-  const defaultValues = {
-    email: "demo@gmail.com",
-  };
-  const form = useForm<UserFormValue>({
-    resolver: zodResolver(formSchema),
-    defaultValues,
-  });
-
-  const onSubmit = async (data: UserFormValue) => {
-    signIn("credentials", {
-      email: data.email,
-      callbackUrl: callbackUrl ?? "/dashboard",
-    });
-  };
-
-  return (
-    <>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-2 w-full"
-        >
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="Enter your email..."
-                    disabled={loading}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    return (
+      <>
+  <form onSubmit={onSubmit} className="space-y-2 w-full">
+          <div>
+            <label>Email</label>
+            <div>
+              <Input
+                type="email"
+                placeholder="Enter your email..."
+                disabled={loading}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          <div>
+            <label>Password</label>
+            <div>
+              <Input
+                type="password"
+                placeholder="Enter your password..."
+                disabled={loading}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
 
           <Button disabled={loading} className="ml-auto w-full" type="submit">
             Continue With Email
           </Button>
         </form>
-      </Form>
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
+        <div className="flex flex-col space-y-2">
+          <SocialSignInButton provider="google" />
+          <SocialSignInButton provider="github" />
         </div>
-      </div>
-      <GoogleSignInButton />
-    </>
-  );
-}
+      </>
+    );
+  }
