@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { Request, Response } from 'express';
 import { getCurrentDateTime } from '@/core/helpers/getCurrentDateTime';
+import { off } from 'process';
 
 interface StatusObject {
   name: string;
@@ -13,7 +14,8 @@ interface StatusObject {
   offlineSince: string | null;
   lastSeen: string | null;
   timesOnline: number;
-  firstSeen: Date | null;
+  firstSeen: Date | string | null ;
+  ts: any;
 }
 
 let statusData: StatusObject[] = [];
@@ -26,6 +28,7 @@ let totalOnlineDuration = 0;
 let lastOnlineTimestamp = null;
 let totalOfflineDuration = 0;
 let lastOfflineTimestamp = null;
+let ts = getCurrentDateTime().time;
 const ITTERATION_DURATION = 2500;
 
 async function writeStatusesToFile(statuses: StatusObject[]) {
@@ -39,6 +42,7 @@ async function writeStatusesToFile(statuses: StatusObject[]) {
       lastSeen: string | null;
       timesOnline: number;
       firstSeen: Date | null;
+      ts :any;
     }
 
     export const statuses: StatusObject[] = ${JSON.stringify(statuses, null, 2)};
@@ -75,6 +79,8 @@ export default async (req: Request, res: Response): Promise<void> => {
       console.log('Successfully navigated to WhatsApp');
 
       while (true) {
+        const time = getCurrentDateTime().time;
+        const timestamp = time;
         try {
           console.log(`Finding and clicking element for ${name}`);
           let element = await driver.wait(
@@ -89,6 +95,9 @@ export default async (req: Request, res: Response): Promise<void> => {
           try {
             await driver.findElement(By.xpath("//span[@title='Online']"));
             currentStatus = "Online";
+            if (previousStatus === "Offline") {
+              totalOnlineDuration = 0;
+            }
             if (lastOnlineTimestamp) {
               const now = new Date();
               totalOnlineDuration += Math.floor((now.getTime() - lastOnlineTimestamp.getTime()) / 1000);
@@ -100,15 +109,18 @@ export default async (req: Request, res: Response): Promise<void> => {
               const now = new Date();
               totalOfflineDuration += Math.floor((now.getTime() - lastOfflineTimestamp.getTime()) / 1000);
             }
+
             lastOfflineTimestamp = new Date();
           }
 
-          // Increment timesOnline if status changes from "Offline" to "Online"
           if (previousStatus === "Offline" && currentStatus === "Online") {
             timesOnline++;
           }
 
-          // Update previousStatus
+          if (previousStatus === "Offline") {
+
+          }
+
           previousStatus = currentStatus;
 
           const statusObject: StatusObject = {
@@ -119,8 +131,22 @@ export default async (req: Request, res: Response): Promise<void> => {
             offlineSince: currentStatus === "Offline" ? `${totalOfflineDuration} seconds` : null,
             lastSeen: timestamp,
             timesOnline,
-            firstSeen
+            firstSeen,
+            ts
           };
+
+          if (!firstSeen && currentStatus === "Online") {
+            firstSeen = timestamp;
+          }
+
+          if (currentStatus === "Offline") {
+            firstSeen = null;
+          }
+
+          if (currentStatus === "Online") {
+            statusObject.onlinefor = `${totalOnlineDuration} seconds`;
+            statusObject.offlineSince = null;
+          }
 
           statusData.push(statusObject);
           console.log(`Status for ${name}: ${statusObject.status}`);

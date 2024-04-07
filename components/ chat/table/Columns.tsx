@@ -1,9 +1,8 @@
-"use client";
-import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { User } from "@/constants/data";
-import { CellAction } from "./CellAction";
 import { StatusObject } from "@/statusData";
+import { ColumnDef } from "@tanstack/react-table";
+import { CellAction } from "./CellAction";
+import OnlineIndicator from "@/components/effects/OnlineIndicator";
 
 export const columns: ColumnDef<StatusObject>[] = [
   {
@@ -27,35 +26,37 @@ export const columns: ColumnDef<StatusObject>[] = [
   },
   {
     accessorKey: "name",
-    header: "NAME",
+    header: "name",
   },
   {
     accessorKey: "status",
-    header: "STATUS",
+    header: "status",
   },
   {
     accessorKey: "timestamp",
-    header: "TIME",
+    header: "timestamp",
   },
   {
-    accessorKey: "onlinefor",
-    header: "ONLINE FOR",
+    accessorKey: "onlineOffline",
+    header: "online/offline for",
+    cell: ({ row }) => (
+      <>
+        <OnlineIndicator />
+        {row.original.status === "Online" ? row.original.onlinefor : row.original.offlineSince}
+      </>
+    ),
   },
   {
-    accessorKey: "offlineSince",
-    header: "OFFLINE SINCE",
-  },
-  {
-    accessorKey: "lastSeen",
-    header: "LAST SEEN",
+    accessorKey: "ts",
+    header: "last seen",
   },
   {
     accessorKey: "timesOnline",
-    header: "TIMES ONLINE",
+    header: "times online",
   },
   {
     accessorKey: "firstSeen",
-    header: "FIRST SEEN",
+    header: "first seen",
   },
   {
     id: "actions",
