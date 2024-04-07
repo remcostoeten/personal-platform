@@ -19,7 +19,6 @@ export default function RecentSidebar() {
       })
   };
 
-
   useEffect(() => {
     fetch('/api/users')
       .then(response => response.json())

@@ -1,6 +1,7 @@
 'use client';
 import Link from "next/link";
 import {
+  Activity,
   Home,
   LineChart,
   ListFilter, Package,
@@ -36,6 +37,7 @@ import { StatusTable } from "@/components/ chat/table/StatusTable";
 import { columns } from "@/components/ chat/table/Columns";
 import { statuses as statusData } from "@/statusData";
 import { useState } from "react";
+import ActivityMonitor from "@/components/ chat/ActivityMonitor";
 
 export  default function Dashboard() {
   const [pageNo, setPageNo] = useState(1);
@@ -145,9 +147,9 @@ export  default function Dashboard() {
             <TabsContent value="all">
               <Card x-chunk="dashboard-06-chunk-0">
                 <CardHeader>
-                  <CardTitle>Products</CardTitle>
+                  <CardTitle><span className="text-3xl">Activity monitor </span></CardTitle>
                   <CardDescription>
-                    Manage your products and view their sales performance.
+                    <ActivityMonitor  />
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
