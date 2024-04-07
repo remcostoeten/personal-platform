@@ -1,8 +1,8 @@
 import React from 'react';
 
 type SpinnerProps = {
-    size: 'small' | 'medium' | 'large';
-    color: string;
+    size?: 'small' | 'medium' | 'large';
+    color?: string;
 };
 
 const Spinner: React.FC<SpinnerProps> = ({ size, color }) => {
