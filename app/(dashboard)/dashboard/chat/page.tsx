@@ -40,7 +40,6 @@ import { useState } from "react";
 export  default function Dashboard() {
   const [pageNo, setPageNo] = useState(1);
   const itemsPerPage = 10; // change this to the number of items you want to display per page
-
   const startIndex = (pageNo - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentPageData = statusData.slice(startIndex, endIndex);
@@ -118,7 +117,7 @@ export  default function Dashboard() {
                   Archived
                 </TabsTrigger>
               </TabsList>
-              <div className="ml-auto flex items-center gap-2">
+              <div className="ml-auto flex items-center gap-4">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="h-8 gap-1">
@@ -140,7 +139,7 @@ export  default function Dashboard() {
                     </DropdownMenuCheckboxItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              <StartScraping/>
+                <StartScraping/>
               </div>
               </div>
             <TabsContent value="all">
