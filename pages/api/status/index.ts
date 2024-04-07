@@ -1,86 +1,56 @@
-import { Builder, By, until, WebDriver } from 'selenium-webdriver';
+import { Builder, By, until } from 'selenium-webdriver';
 import chrome from 'selenium-webdriver/chrome';
 import path from 'path';
 import fs from 'fs';
 import { Request, Response } from 'express';
 import { getCurrentDateTime } from '@/core/helpers/getCurrentDateTime';
-import { toast } from 'sonner';
-import { ReactNode } from 'react';
-
-const currentDateTime = getCurrentDateTime();
-const time = currentDateTime.time;
-const date = currentDateTime.date;
 
 interface StatusObject {
   name: string;
   status: string;
-  timestamp: any;
-  onlinefor: string | null;
-  offlineSince: string | null;
-  lastSeen: any |  null;
-  timesOnline: number;
-  firstSeen: string | null;
-}
-
-let status: StatusObject = {
-  name: '',
-  status: '',
-  timestamp:currentDateTime.time,
-  onlinefor: null,
-  offlineSince: null,
-  lastSeen: null,
-  timesOnline: 0,
-  firstSeen: null,
-};
-
-let statusData: StatusObject[] = [];
-let previousStatus: string | null = null;
-let statusChangedAt:any = currentDateTime;
-let timesOnline: number = 0;
-let firstSeen: string | null = null;
-let lastSeen:any = null;
-let onlinefor: string | null = null;
-let offlineSince: string | null = null;
-
-const dir = path.join(__dirname, '/core/constants');
-
-if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir, { recursive: true });
-}
-
-const filePath = path.join(dir, 'statusData.ts');
-
-if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, '', 'utf8');
-}
-
-function writeStatusesToFile(statuses: StatusObject[]) {
-  const fileContent = `
-export type StatusObject = {
-  name: string ;
-  status: string;
-  timestamp: string;
+  timestamp: string; // Changed type from Date to string
   onlinefor: string | null;
   offlineSince: string | null;
   lastSeen: string | null;
   timesOnline: number;
-  firstSeen: string | null ;
-  isCurrentlyOnline: boolean;
+  firstSeen: Date | null;
 }
 
-export const statuses: StatusObject[] = ${JSON.stringify(statuses, null, 2)};
+let statusData: StatusObject[] = [];
+let previousStatus: string | null = null;
+let statusChangedAt: number | null = null;
+let timesOnline: number = 0;
+let firstSeen: Date | string | null = null;
+let totalOnlineDuration = 0;
+let totalOfflineDuration = 0;
+
+async function writeStatusesToFile(statuses: StatusObject[]) {
+  const fileContent = `
+    export type StatusObject = {
+      name: string;
+      status: string;
+      timestamp: string;
+      onlinefor: string | null;
+      offlineSince: string | null;
+      lastSeen: string | null;
+      timesOnline: number;
+      firstSeen: Date | null;
+    }
+
+    export const statuses: StatusObject[] = ${JSON.stringify(statuses, null, 2)};
   `;
   fs.writeFile('statusData.ts', fileContent, (err) => {
     if (err) {
       console.error('An error occurred while writing JSON object to file:', err);
-      return;
+    } else {
+      console.log('Data file has been saved.');
     }
-    console.log('Data file has been saved.');
   });
 }
 
 export default async (req: Request, res: Response): Promise<void> => {
-  const timestamp: Date = new Date();
+  const time = getCurrentDateTime().time;
+  const timestamp = time
 
   try {
     const name: string = (req.query.name as string) || (process.env.WHATSAPP_NAME as string);
@@ -94,6 +64,7 @@ export default async (req: Request, res: Response): Promise<void> => {
       .forBrowser('chrome')
       .setChromeOptions(options)
       .build();
+
     try {
       console.log('Navigating to WhatsApp');
       await driver.get('https://web.whatsapp.com/');
@@ -102,66 +73,48 @@ export default async (req: Request, res: Response): Promise<void> => {
       while (true) {
         try {
           console.log(`Finding and clicking element for ${name}`);
-
           let element = await driver.wait(
             until.elementLocated(By.xpath(`//span[contains(text(), '${name}')]`)),
             2500
           );
+          await element.click();
 
-            console.log(`Clicking element for ${name}`);
-            await element.click();
+          console.log('Getting status');
 
-          try {
-            await driver.wait(until.elementLocated(By.xpath("//span[@title='Online']")), 2500);
-            let currentStatus = "Online";
+          let currentStatus = await driver.findElement(By.xpath("//span[@title='Online']"))
+            .then(() => "Online")
+            .catch(() => "Offline");
 
             if (previousStatus !== currentStatus) {
-              toast(`${name} is online`);
-              timesOnline++;
-              firstSeen = time;
-              previousStatus = currentStatus;
-              statusChangedAt = currentDateTime
+              if (previousStatus === "Offline" && currentStatus === "Online") {
+                timesOnline++;
+                firstSeen = timestamp;
+              }
+              statusChangedAt = Date.now();
             }
 
+            const duration = statusChangedAt ? Math.floor((Date.now() - statusChangedAt) / 1000) : 0;
+          const statusObject: StatusObject = {
+            name,
+            status: currentStatus,
+            timestamp: timestamp, // Assigning timestamp value
+            onlinefor: currentStatus === "Online" ? `${totalOnlineDuration} seconds` : null,
+            offlineSince: currentStatus === "Offline" ? `${totalOfflineDuration} seconds` : null,
+            lastSeen: timestamp,
+            timesOnline,
+            firstSeen
+          };
 
-            lastSeen = currentDateTime
-
-            onlinefor = `${Math.floor((Date.now() - statusChangedAt) / 1000)} seconds`;
-            status = {
-              name,
-              status: currentStatus,
-              timestamp,
-              onlinefor,
-              offlineSince,
-              lastSeen,
-              timesOnline,
-              firstSeen
-            };
-            previousStatus = currentStatus;
-          }  catch (error) {
-            let currentStatus = "Offline";
-            if (previousStatus !== currentStatus) {
-              toast(`${name} is offline`);
-              offlineSince = time;
-              previousStatus = currentStatus;
-              statusChangedAt = currentDateTime
-            }
-            status = {
-              name,
-              status: currentStatus,
-              timestamp,
-              onlinefor,
-              offlineSince,
-              lastSeen,
-              timesOnline,
-              firstSeen
-            };
-            statusData.push(status);
-            console.log(`Status for ${name}: ${status.status}`);
-            console.log(JSON.stringify(status));
+          if (currentStatus === "Online") {
+            totalOnlineDuration += duration;
+          } else {
+            totalOfflineDuration += duration;
           }
-          console.log(`Status for ${name}: ${status.status}`);
-          console.log(JSON.stringify(status));
+
+
+          statusData.push(statusObject);
+          console.log(`Status for ${name}: ${statusObject.status}`);
+          console.log(JSON.stringify(statusObject));
 
           writeStatusesToFile(statusData);
 
