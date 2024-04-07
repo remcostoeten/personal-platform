@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { PlusCircle } from "lucide-react";
+import OnlineIndicator from "../effects/OnlineIndicator";
 
 function StartScraping() {
   const [status, setStatus] = useState(null);
@@ -30,10 +31,19 @@ function StartScraping() {
         onClick={startScraping}
         disabled={isLoading}
       >
-        <PlusCircle className="h-3.5 w-3.5" />
-        {!isLoading ? <>Start scraping</> : <span className="loading">Currently scraping</span>}
+        {!isLoading ? (
+          <>
+            <PlusCircle className="h-3.5 w-3.5" />
+            Start scraping
+          </>
+        ) : (
+          <span className="flex gap-2">
+
+       <OnlineIndicator/>
+            Currently scraping..</span>
+        )}
       </Button>
-    </>
+      </>
   );
 }
 
