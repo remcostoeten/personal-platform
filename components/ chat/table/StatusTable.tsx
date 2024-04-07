@@ -70,6 +70,12 @@ export function StatusTable<TData, TValue>({
   const perPageAsNumber = Number(per_page);
   const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber;
 
+  if (!data) {
+    console.log("No data provided");
+  }
+
+
+
   /* this can be used to get the selectedrows
   console.log("value", table.getFilteredSelectedRowModel()); */
 
@@ -112,8 +118,16 @@ export function StatusTable<TData, TValue>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndex, pageSize]);
 
+  const paginatedData = React.useMemo(() => {
+    const startIndex = pageIndex * pageSize;
+    const endIndex = startIndex + pageSize;
+    return data.slice(startIndex, endIndex);
+  }, [data, pageIndex, pageSize]);
+
+
   const table = useReactTable({
-    data: data ?? [],    columns,
+    data: paginatedData ?? [],
+    columns,
     pageCount: pageCount ?? -1,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
