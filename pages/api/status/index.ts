@@ -3,9 +3,11 @@ import chrome from 'selenium-webdriver/chrome';
 import path from 'path';
 import fs from 'fs';
 import { Request, Response } from 'express';
+import { getCurrentDateTime } from '@/core/helpers/getCurrentDateTime';
 
-const date = new Date();
-const formattedDate = date.toLocaleString(); // "1/1/1970, 1:00:00 AM" in en-US locale
+const currentDateTime = getCurrentDateTime();
+const time = currentDateTime.time;
+const date = currentDateTime.date;
 
 interface StatusObject {
   name: string;
@@ -18,7 +20,6 @@ interface StatusObject {
   firstSeen: Date | null;
 }
 
-// Use the StatusObject interface
 let status: StatusObject = {
   name: '',
   status: '',
@@ -34,7 +35,7 @@ let statusData: StatusObject[] = [];
 let previousStatus: string | null = null;
 let statusChangedAt: number = Date.now();
 let timesOnline: number = 0;
-let firstSeen: Date | null = null;
+let firstSeen: string  | null = null;
 let onlinefor: string | null = null;
 let offlineSince: string | null = null;
 let lastSeen: string | null = null;
@@ -55,14 +56,15 @@ if (!fs.existsSync(filePath)) {
 function writeStatusesToFile(statuses: StatusObject[]) {
   const fileContent = `
 export type StatusObject = {
-  name: string;
+  name: string ;
   status: string;
   timestamp: string;
   onlinefor: string | null;
   offlineSince: string | null;
   lastSeen: string | null;
   timesOnline: number;
-  firstSeen: Date | null;
+  firstSeen: string | null ;
+  isCurrentlyOnline: boolean;
 }
 
 export const statuses: StatusObject[] = ${JSON.stringify(statuses, null, 2)};
@@ -80,7 +82,7 @@ export default async (req: Request, res: Response): Promise<void> => {
   const timestamp: Date = new Date();
 
   try {
-    const name: string = req.query.name || process.env.WHATSAPP_NAME;
+    const name: string = (req.query.name as string) || (process.env.WHATSAPP_NAME as string);
     if (!name) throw new Error('Name is required.');
 
     let options = new chrome.Options();
@@ -110,11 +112,18 @@ export default async (req: Request, res: Response): Promise<void> => {
           try {
             await driver.wait(until.elementLocated(By.xpath("//span[@title='Online']")), 2500);
             let currentStatus = "Online";
-            if (previousStatus === "Offline" && currentStatus === "Online") {
+            if (previousStatus !== currentStatus) {
               timesOnline++;
-              firstSeen = timestamp;
+              let { date, time } = getCurrentDateTime();
+              firstSeen = `${date} ${time}`;
+              previousStatus = currentStatus;
             }
-            lastSeen = timestamp; // Update lastSeen here
+            if (lastSeen.length > 0) {
+              lastSeen = 'Has been online since last seen';
+            } else {
+              let { date, time } = getCurrentDateTime();
+              lastSeen = `${date} ${time}`;
+            }
             onlinefor = `${Math.floor((Date.now() - statusChangedAt) / 1000)} seconds`;
 
             statusObject = {
@@ -130,20 +139,26 @@ export default async (req: Request, res: Response): Promise<void> => {
             previousStatus = currentStatus;
           } catch (error) {
             let currentStatus = "Offline";
-            offlineSince = `${Math.floor((Date.now() - statusChangedAt) / 1000)} seconds`;
+            if (previousStatus !== currentStatus) {
+              offlineSince = `${Math.floor((Date.now() - statusChangedAt) / 1000)} seconds`;
+              let { date, time } = getCurrentDateTime();
+              lastSeen = `${date} ${time}`;
+              previousStatus = currentStatus;
+            }
             statusObject = {
               name,
               status: currentStatus,
               timestamp,
               onlinefor,
               offlineSince,
-              lastSeen: new Date(lastSeen).toString(),
+              lastSeen,
               timesOnline,
               firstSeen
             };
-            previousStatus = currentStatus;
+            statusData.push(statusObject);
+            console.log(`Status for ${name}: ${statusObject.status}`);
+            console.log(JSON.stringify(statusObject));
           }
-          statusData.push(statusObject);
           console.log(`Status for ${name}: ${statusObject.status}`);
           console.log(JSON.stringify(statusObject));
 
@@ -151,7 +166,7 @@ export default async (req: Request, res: Response): Promise<void> => {
 
           await new Promise(resolve => setTimeout(resolve, 2500));
         } catch (error) {
-          if (error.message.includes('chrome not reachable')) {
+          if (error.includes('chrome not reachable')) {
             // ChromeDriver has been closed, stop execution
             console.error('ChromeDriver has been closed, stopping execution.');
             break;
@@ -161,8 +176,8 @@ export default async (req: Request, res: Response): Promise<void> => {
       }
     } catch (error) {
       console.error('An error occurred:', error);
-      res.status(500).json({ error: error.message });
-      console.error(`Sent 500 response due to error: ${error.message}`);
+      res.status(500).json({ error: error });
+      console.error(`Sent 500 response due to error: ${error}`);
     } finally {
       if (driver) {
         await driver.quit();
@@ -170,7 +185,7 @@ export default async (req: Request, res: Response): Promise<void> => {
     }
   } catch (error) {
     console.error('An error occurred:', error);
-    res.status(500).json({ error: error.message });
-    console.error(`Sent 500 response due to error: ${error.message}`);
+    res.status(500).json({ error: error });
+    console.error(`Sent 500 response due to error: ${error}`);
   }
 };
