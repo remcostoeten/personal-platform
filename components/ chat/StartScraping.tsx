@@ -34,9 +34,9 @@ function StartScraping() {
         console.log("Status cleared:", data);
       })
       .catch((error) => {
-        console.error('Error:', error);
+        console.error("Error:", error);
       });
-  }
+  };
 
   return (
     <>
@@ -53,16 +53,12 @@ function StartScraping() {
           </>
         ) : (
           <span className="flex gap-2">
-            <OnlineIndicator/>
+            <OnlineIndicator />
             Currently scraping..
           </span>
         )}
       </Button>
-      <Button
-        size="sm"
-        className="h-8 gap-1"
-        onClick={clearStatus}
-      >
+      <Button size="sm" className="h-8 gap-1" onClick={clearStatus}>
         Clear
       </Button>
     </>

@@ -74,8 +74,6 @@ export function StatusTable<TData, TValue>({
     console.log("No data provided");
   }
 
-
-
   /* this can be used to get the selectedrows
   console.log("value", table.getFilteredSelectedRowModel()); */
 
@@ -123,7 +121,6 @@ export function StatusTable<TData, TValue>({
     const endIndex = startIndex + pageSize;
     return data.slice(startIndex, endIndex);
   }, [data, pageIndex, pageSize]);
-
 
   const table = useReactTable({
     data: paginatedData ?? [],

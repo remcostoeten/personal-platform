@@ -1,5 +1,5 @@
-'use client';
-import React, { useState, useEffect } from 'react';
+"use client";
+import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +12,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from '@/constants/data';
+import { User } from "@/constants/data";
 
 type AuthStateOptions = {
   onUserChanged?: (user: User | null) => Promise<void>;
@@ -23,7 +23,7 @@ type Auth = {
   onAuthStateChanged: (
     auth: Auth,
     onNext: (user: User | null) => void,
-    onError: (error: Error) => void
+    onError: (error: Error) => void,
   ) => () => void;
 };
 
@@ -32,7 +32,13 @@ type UserNavProps = {
   options?: AuthStateOptions;
 };
 
-const UserNav = ({ auth, options }: { auth: Auth, options?: AuthStateOptions }) => {
+const UserNav = ({
+  auth,
+  options,
+}: {
+  auth: Auth;
+  options?: AuthStateOptions;
+}) => {
   const { user, loading, error } = useAuthState(auth, options);
 
   if (loading) {
@@ -45,14 +51,11 @@ const UserNav = ({ auth, options }: { auth: Auth, options?: AuthStateOptions }) 
 
   if (user) {
     return (
-<DropdownMenu>
+      <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage
-                src={user?.image ?? ""}
-                alt={user?.name ?? ""}
-              />
+              <AvatarImage src={user?.image ?? ""} alt={user?.name ?? ""} />
               <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
             </Avatar>
           </Button>
@@ -60,9 +63,7 @@ const UserNav = ({ auth, options }: { auth: Auth, options?: AuthStateOptions }) 
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {user?.name}
-              </p>
+              <p className="text-sm font-medium leading-none">{user?.name}</p>
               <p className="text-xs leading-none text-muted-foreground">
                 {user?.email}
               </p>
@@ -85,12 +86,13 @@ const UserNav = ({ auth, options }: { auth: Auth, options?: AuthStateOptions }) 
             <DropdownMenuItem>New Team</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem >
+          <DropdownMenuItem>
             Log out
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>    );
+      </DropdownMenu>
+    );
   }
 
   return null;
@@ -120,11 +122,11 @@ const useAuthState = (auth: Auth, options?: AuthStateOptions) => {
       (error) => {
         setError(error);
         setLoading(false);
-      }
+      },
     );
 
     return () => {
-      if (typeof listener === 'function') {
+      if (typeof listener === "function") {
         listener();
       }
     };

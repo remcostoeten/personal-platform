@@ -1,11 +1,10 @@
-'use client'
+"use client";
 import { Metadata } from "next";
 import Link from "next/link";
 import UserAuthForm from "@/components/forms/user-auth-form";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Logo from "@/components/theme/logo";
-
 
 export default function AuthenticationPage() {
   return (
@@ -20,23 +19,22 @@ export default function AuthenticationPage() {
         Login
       </Link>
       <div className="relative hidden h-full flex-col text-white dark:border-r lg:flex w-1/3 overflow-hidden">
-
-      <div className="relative z-20 flex  text-lg font-medium">
-          <Logo className="absolute left-1/2 top-4 transform -translate-x-1/2 w-44" height="100" />
-
-            </div>
-      <video
-className="w-full h-full object-cover -z-10"    src="login-video.mp4" alt='login video - remcostoeten'
-    autoPlay
-    muted
-    loop
-  >
-    Your browser does not support the video tag.
-  </video>
-
-
-
-
+        <div className="relative z-20 flex  text-lg font-medium">
+          <Logo
+            className="absolute left-1/2 top-4 transform -translate-x-1/2 w-44"
+            height="100"
+          />
+        </div>
+        <video
+          className="w-full h-full object-cover -z-10"
+          src="login-video.mp4"
+          alt="login video - remcostoeten"
+          autoPlay
+          muted
+          loop
+        >
+          Your browser does not support the video tag.
+        </video>
       </div>
       <div className="p-4 lg:p-8 h-full flex items-center bg-black">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
