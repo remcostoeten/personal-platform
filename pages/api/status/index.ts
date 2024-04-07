@@ -5,6 +5,9 @@ import winston, { Logger } from 'winston';
 import fs from 'fs';
 import { Request, Response } from 'express';
 
+const date = new Date();
+const formattedDate = date.toLocaleString(); // "1/1/1970, 1:00:00 AM" in en-US locale
+
 interface StatusObject {
   name: string;
   status: string;
@@ -16,6 +19,17 @@ interface StatusObject {
   firstSeen: Date | null;
 }
 
+// Use the StatusObject interface
+let status: StatusObject = {
+  name: '',
+  status: '',
+  timestamp: new Date(),
+  onlinefor: null,
+  offlineSince: null,
+  lastSeen: null,
+  timesOnline: 0,
+  firstSeen: null,
+};
 const logger: Logger = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
@@ -42,7 +56,6 @@ let offlineSince: string | null = null;
 let lastSeen: string | null = null;
 let statusObject: StatusObject | null = null;
 
-
 const dir = path.join(__dirname, '/core/constants');
 
 if (!fs.existsSync(dir)){
@@ -57,18 +70,16 @@ if (!fs.existsSync(filePath)) {
 
 function writeStatusesToFile(statuses: StatusObject[]) {
   const fileContent = `
-type StatusObject = {
+export type StatusObject = {
   name: string;
   status: string;
-  timestamp: Date;
+  timestamp: string;
   onlinefor: string | null;
   offlineSince: string | null;
   lastSeen: string | null;
   timesOnline: number;
   firstSeen: Date | null;
 }
-
-
 
 export const statuses: StatusObject[] = ${JSON.stringify(statuses, null, 2)};
   `;
