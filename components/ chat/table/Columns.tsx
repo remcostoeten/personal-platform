@@ -58,10 +58,6 @@ export const columns: ColumnDef<StatusObject>[] = [
     header: "FIRST SEEN",
   },
   {
-    accessorKey: "timesOnline",
-    header: "TIMES ONLINE",
-  },
-  {
     id: "actions",
     cell: ({ row }) => <CellAction data={row.original} />,
   },

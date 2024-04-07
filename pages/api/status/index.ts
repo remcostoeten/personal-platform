@@ -4,6 +4,8 @@ import path from 'path';
 import fs from 'fs';
 import { Request, Response } from 'express';
 import { getCurrentDateTime } from '@/core/helpers/getCurrentDateTime';
+import { toast } from 'sonner';
+import { ReactNode } from 'react';
 
 const currentDateTime = getCurrentDateTime();
 const time = currentDateTime.time;
@@ -12,18 +14,18 @@ const date = currentDateTime.date;
 interface StatusObject {
   name: string;
   status: string;
-  timestamp: Date;
+  timestamp: any;
   onlinefor: string | null;
   offlineSince: string | null;
-  lastSeen: string | null;
+  lastSeen: any |  null;
   timesOnline: number;
-  firstSeen: Date | null;
+  firstSeen: string | null;
 }
 
 let status: StatusObject = {
   name: '',
   status: '',
-  timestamp: new Date(),
+  timestamp:currentDateTime.time,
   onlinefor: null,
   offlineSince: null,
   lastSeen: null,
@@ -33,13 +35,12 @@ let status: StatusObject = {
 
 let statusData: StatusObject[] = [];
 let previousStatus: string | null = null;
-let statusChangedAt: number = Date.now();
+let statusChangedAt:any = currentDateTime;
 let timesOnline: number = 0;
-let firstSeen: string  | null = null;
+let firstSeen: string | null = null;
+let lastSeen:any = null;
 let onlinefor: string | null = null;
 let offlineSince: string | null = null;
-let lastSeen: string | null = null;
-let statusObject: StatusObject | null = null;
 
 const dir = path.join(__dirname, '/core/constants');
 
@@ -101,32 +102,32 @@ export default async (req: Request, res: Response): Promise<void> => {
       while (true) {
         try {
           console.log(`Finding and clicking element for ${name}`);
+
           let element = await driver.wait(
             until.elementLocated(By.xpath(`//span[contains(text(), '${name}')]`)),
             2500
           );
-          await element.click();
 
-          console.log('Getting status');
+            console.log(`Clicking element for ${name}`);
+            await element.click();
 
           try {
             await driver.wait(until.elementLocated(By.xpath("//span[@title='Online']")), 2500);
             let currentStatus = "Online";
-            if (previousStatus !== currentStatus) {
-              timesOnline++;
-              let { date, time } = getCurrentDateTime();
-              firstSeen = `${date} ${time}`;
-              previousStatus = currentStatus;
-            }
-            if (lastSeen.length > 0) {
-              lastSeen = 'Has been online since last seen';
-            } else {
-              let { date, time } = getCurrentDateTime();
-              lastSeen = `${date} ${time}`;
-            }
-            onlinefor = `${Math.floor((Date.now() - statusChangedAt) / 1000)} seconds`;
 
-            statusObject = {
+            if (previousStatus !== currentStatus) {
+              toast(`${name} is online`);
+              timesOnline++;
+              firstSeen = time;
+              previousStatus = currentStatus;
+              statusChangedAt = currentDateTime
+            }
+
+
+            lastSeen = currentDateTime
+
+            onlinefor = `${Math.floor((Date.now() - statusChangedAt) / 1000)} seconds`;
+            status = {
               name,
               status: currentStatus,
               timestamp,
@@ -137,15 +138,15 @@ export default async (req: Request, res: Response): Promise<void> => {
               firstSeen
             };
             previousStatus = currentStatus;
-          } catch (error) {
+          }  catch (error) {
             let currentStatus = "Offline";
             if (previousStatus !== currentStatus) {
-              offlineSince = `${Math.floor((Date.now() - statusChangedAt) / 1000)} seconds`;
-              let { date, time } = getCurrentDateTime();
-              lastSeen = `${date} ${time}`;
+              toast(`${name} is offline`);
+              offlineSince = time;
               previousStatus = currentStatus;
+              statusChangedAt = currentDateTime
             }
-            statusObject = {
+            status = {
               name,
               status: currentStatus,
               timestamp,
@@ -155,22 +156,17 @@ export default async (req: Request, res: Response): Promise<void> => {
               timesOnline,
               firstSeen
             };
-            statusData.push(statusObject);
-            console.log(`Status for ${name}: ${statusObject.status}`);
-            console.log(JSON.stringify(statusObject));
+            statusData.push(status);
+            console.log(`Status for ${name}: ${status.status}`);
+            console.log(JSON.stringify(status));
           }
-          console.log(`Status for ${name}: ${statusObject.status}`);
-          console.log(JSON.stringify(statusObject));
+          console.log(`Status for ${name}: ${status.status}`);
+          console.log(JSON.stringify(status));
 
           writeStatusesToFile(statusData);
 
           await new Promise(resolve => setTimeout(resolve, 2500));
         } catch (error) {
-          if (error.includes('chrome not reachable')) {
-            // ChromeDriver has been closed, stop execution
-            console.error('ChromeDriver has been closed, stopping execution.');
-            break;
-          }
           console.error('An error occurred:', error);
         }
       }

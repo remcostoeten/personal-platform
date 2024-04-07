@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from 'sonner';
 import "@uploadthing/react/styles.css";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} overflow-hidden`}>
          <Providers>
-          <Toaster />
+          <Toaster invert closeButton/>
           {children}
         </Providers>
       </body>
