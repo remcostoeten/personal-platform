@@ -35,9 +35,18 @@ import StartScraping from "@/components/ chat/StartScraping";
 import { StatusTable } from "@/components/ chat/table/StatusTable";
 import { columns } from "@/components/ chat/table/Columns";
 import { statuses as statusData } from "@/statusData";
-import { stat } from "fs";
+import { useState } from "react";
 
 export  default function Dashboard() {
+  const [pageNo, setPageNo] = useState(1);
+  const itemsPerPage = 10; // change this to the number of items you want to display per page
+
+  const startIndex = (pageNo - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentPageData = statusData.slice(startIndex, endIndex);
+
+  const pageCount = Math.ceil(statusData.length / itemsPerPage);
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
 
@@ -147,14 +156,17 @@ export  default function Dashboard() {
                     data={statusData}
                     columns={columns}
                     totalChecks={statusData.length}
-                    searchKey="yourSearchKey" // replace with your actual search key
-                    pageNo={1} // replace with your actual page number
-                    pageCount={0}/>
+                    pageCount={pageCount}
+                    pageNo={pageNo}
+                    searchKey="status"
+        pageNo={pageNo}
+        pageCount={pageCount}/>
                 </CardContent>
                 <CardFooter>
-                  <div className="text-xs text-muted-foreground">
-                    Showing <strong>1-10</strong> of <strong>32</strong>{" "}
-                    products
+                  <div className="flex items-center gap-4">
+                    showing <strong>{startIndex + 1}</strong> to{" "}
+                    <strong>{endIndex}</strong> of{" "}
+                    <strong>{statusData.length}</strong> products
                   </div>
                 </CardFooter>
               </Card>
