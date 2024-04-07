@@ -112,9 +112,6 @@ export default async (req: Request, res: Response): Promise<void> => {
           try {
             await driver.findElement(By.xpath("//span[@title='Online']"));
             currentStatus = "Online";
-            if (previousStatus === "Offline") {
-              totalOnlineDuration = 0;
-            }
 
             if (lastOnlineTimestamp) {
               const now = new Date();

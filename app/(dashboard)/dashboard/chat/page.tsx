@@ -45,6 +45,7 @@ export default function Dashboard() {
   const currentPageData = statusData.slice(startIndex, endIndex);
 
   const pageCount = Math.ceil(statusData.length / itemsPerPage);
+  const lastStatusData = statusData[statusData.length - 1];
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -148,8 +149,8 @@ export default function Dashboard() {
                     <span className="text-3xl">Activity monitor </span>
                   </CardTitle>
                   <CardDescription>
-                    <ActivityMonitor />
-                  </CardDescription>
+        <ActivityMonitor data={lastStatusData} />
+            </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <StatusTable
