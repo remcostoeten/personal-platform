@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import {
-  Activity,
   Home,
   LineChart,
   ListFilter,
@@ -36,6 +35,8 @@ import { columns } from "@/components/ chat/table/Columns";
 import { statuses as statusData } from "@/statusData";
 import { useState } from "react";
 import ActivityMonitor from "@/components/ chat/ActivityMonitor";
+import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
+import OnlineIndicator from "@/components/effects/OnlineIndicator";
 
 export default function Dashboard() {
   const [pageNo, setPageNo] = useState(1);
@@ -46,7 +47,6 @@ export default function Dashboard() {
 
   const pageCount = Math.ceil(statusData.length / itemsPerPage);
   const lastStatusData = statusData[statusData.length - 1];
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <div className="flex flex-col sm:gap-4 sm:py-4 ">
@@ -146,20 +146,35 @@ export default function Dashboard() {
               <Card x-chunk="dashboard-06-chunk-0">
                 <CardHeader>
                   <CardTitle>
-                    <span className="text-3xl">Activity monitor </span>
+                    <span className="text-3xl flex gap-2 relative">
+                      Activity monitor{" "}
+                      <Tooltip>
+                        <TooltipTrigger className="font-semi flex gap-2 items-center">
+                          ({statusData.length})
+                          <OnlineIndicator
+                            size={4}
+                            color="emerald"
+                            style={{
+                              backgroundColor:
+                                status === "Online" ? "green" : "red",
+                            }}
+                          />
+                        </TooltipTrigger>
+                      </Tooltip>
+                    </span>
                   </CardTitle>
                   <CardDescription>
-        <ActivityMonitor data={lastStatusData} />
-            </CardDescription>
+                    <ActivityMonitor StatusData={lastStatusData} />
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <StatusTable
                     data={statusData}
                     columns={columns}
                     totalChecks={statusData.length}
-                    pageCount={pageCount}
+                    pageCount={Math.ceil(statusData.length / itemsPerPage)}
                     pageNo={pageNo}
-                    searchKey="status"
+                    searchKey={""}
                   />
                 </CardContent>
                 <CardFooter>

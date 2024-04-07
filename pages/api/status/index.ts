@@ -1,10 +1,13 @@
-import { Builder, By, until, WebDriver } from "selenium-webdriver";
+import { Builder, By, until } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 import path from "path";
 import fs from "fs";
 import { Request, Response } from "express";
 import { getCurrentDateTime } from "@/core/helpers/getCurrentDateTime";
-import { off } from "process";
+import {
+  CHROME_PROFILE_PATH,
+  ITTERATION_DURATION,
+} from "@/components/ chat/config";
 
 interface StatusObject {
   name: string;
@@ -32,7 +35,6 @@ let lastOnlineTimestamp = null;
 let totalOfflineDuration = 0;
 let lastOfflineTimestamp = null;
 let ts = getCurrentDateTime().time;
-const ITTERATION_DURATION = 2500;
 
 async function writeStatusesToFile(statuses: StatusObject[]) {
   const fileContent = `
@@ -68,19 +70,13 @@ async function writeStatusesToFile(statuses: StatusObject[]) {
 }
 
 export default async (req: Request, res: Response): Promise<void> => {
-  const time = getCurrentDateTime().time;
-  const timestamp = time;
-
   try {
     const name: string =
       (req.query.name as string) || (process.env.WHATSAPP_NAME as string);
     if (!name) throw new Error("Name is required.");
 
     let options = new chrome.Options();
-    const chromeProfilePath = path.resolve(
-      __dirname,
-      "../../../../../chromeprofile",
-    );
+    const chromeProfilePath = path.resolve(__dirname, `${CHROME_PROFILE_PATH}`);
     options.addArguments(`user-data-dir=${chromeProfilePath}`);
 
     let driver = await new Builder()
