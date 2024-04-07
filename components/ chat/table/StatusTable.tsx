@@ -34,13 +34,14 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { StatusObject } from "@/statusData";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchKey: string;
   pageNo: number;
-  totalUsers: number;
+  totalChecks: number;
   pageSizeOptions?: number[];
   pageCount: number;
   searchParams?: {
@@ -48,12 +49,12 @@ interface DataTableProps<TData, TValue> {
   };
 }
 
-export function EmployeeTable<TData, TValue>({
+export function StatusTable<TData, TValue>({
   columns,
   data,
   pageNo,
   searchKey,
-  totalUsers,
+  totalChecks,
   pageCount,
   pageSizeOptions = [10, 20, 30, 40, 50],
 }: DataTableProps<TData, TValue>) {
@@ -112,8 +113,7 @@ export function EmployeeTable<TData, TValue>({
   }, [pageIndex, pageSize]);
 
   const table = useReactTable({
-    data,
-    columns,
+    data: data ?? [],    columns,
     pageCount: pageCount ?? -1,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
