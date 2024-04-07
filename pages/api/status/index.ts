@@ -1,10 +1,10 @@
-import { Builder, By, until, WebDriver } from 'selenium-webdriver';
-import chrome from 'selenium-webdriver/chrome';
-import path from 'path';
-import fs from 'fs';
-import { Request, Response } from 'express';
-import { getCurrentDateTime } from '@/core/helpers/getCurrentDateTime';
-import { off } from 'process';
+import { Builder, By, until, WebDriver } from "selenium-webdriver";
+import chrome from "selenium-webdriver/chrome";
+import path from "path";
+import fs from "fs";
+import { Request, Response } from "express";
+import { getCurrentDateTime } from "@/core/helpers/getCurrentDateTime";
+import { off } from "process";
 
 interface StatusObject {
   name: string;
@@ -14,7 +14,7 @@ interface StatusObject {
   offlineSince: string | null;
   lastSeen: string | null;
   timesOnline: number;
-  firstSeen: Date | string | null ;
+  firstSeen: Date | string | null;
   ts: any;
   lastSessionDuration: string | null;
 }
@@ -26,7 +26,7 @@ let previousStatus: string | null = null;
 let statusChangedAt: number | null = null;
 let timesOnline: number = 0;
 let firstSeen: Date | string | null = null;
-let lastSeen: Date |string | null = null;
+let lastSeen: Date | string | null = null;
 let totalOnlineDuration = 0;
 let lastOnlineTimestamp = null;
 let totalOfflineDuration = 0;
@@ -49,13 +49,20 @@ async function writeStatusesToFile(statuses: StatusObject[]) {
       lastSessionDuration: string | null;
     }
 
-    export const statuses: StatusObject[] = ${JSON.stringify(statuses, null, 2)};
+    export const statuses: StatusObject[] = ${JSON.stringify(
+      statuses,
+      null,
+      2,
+    )};
   `;
-  fs.writeFile('statusData.ts', fileContent, (err) => {
+  fs.writeFile("statusData.ts", fileContent, (err) => {
     if (err) {
-      console.error('An error occurred while writing JSON object to file:', err);
+      console.error(
+        "An error occurred while writing JSON object to file:",
+        err,
+      );
     } else {
-      console.log('Data file has been saved.');
+      console.log("Data file has been saved.");
     }
   });
 }
@@ -65,22 +72,26 @@ export default async (req: Request, res: Response): Promise<void> => {
   const timestamp = time;
 
   try {
-    const name: string = (req.query.name as string) || (process.env.WHATSAPP_NAME as string);
-    if (!name) throw new Error('Name is required.');
+    const name: string =
+      (req.query.name as string) || (process.env.WHATSAPP_NAME as string);
+    if (!name) throw new Error("Name is required.");
 
     let options = new chrome.Options();
-    const chromeProfilePath = path.resolve(__dirname, '../../../../../chromeprofile');
+    const chromeProfilePath = path.resolve(
+      __dirname,
+      "../../../../../chromeprofile",
+    );
     options.addArguments(`user-data-dir=${chromeProfilePath}`);
 
     let driver = await new Builder()
-      .forBrowser('chrome')
+      .forBrowser("chrome")
       .setChromeOptions(options)
       .build();
 
     try {
-      console.log('Navigating to WhatsApp');
-      await driver.get('https://web.whatsapp.com/');
-      console.log('Successfully navigated to WhatsApp');
+      console.log("Navigating to WhatsApp");
+      await driver.get("https://web.whatsapp.com/");
+      console.log("Successfully navigated to WhatsApp");
 
       while (true) {
         const time = getCurrentDateTime().time;
@@ -88,12 +99,14 @@ export default async (req: Request, res: Response): Promise<void> => {
         try {
           console.log(`Finding and clicking element for ${name}`);
           let element = await driver.wait(
-            until.elementLocated(By.xpath(`//span[contains(text(), '${name}')]`)),
-            ITTERATION_DURATION
+            until.elementLocated(
+              By.xpath(`//span[contains(text(), '${name}')]`),
+            ),
+            ITTERATION_DURATION,
           );
           await element.click();
 
-          console.log('Getting status');
+          console.log("Getting status");
 
           let currentStatus;
           try {
@@ -105,14 +118,18 @@ export default async (req: Request, res: Response): Promise<void> => {
 
             if (lastOnlineTimestamp) {
               const now = new Date();
-              totalOnlineDuration += Math.floor((now.getTime() - lastOnlineTimestamp.getTime()) / 1000);
+              totalOnlineDuration += Math.floor(
+                (now.getTime() - lastOnlineTimestamp.getTime()) / 1000,
+              );
             }
             lastOnlineTimestamp = new Date();
           } catch (error) {
             currentStatus = "Offline";
             if (lastOfflineTimestamp) {
               const now = new Date();
-              totalOfflineDuration += Math.floor((now.getTime() - lastOfflineTimestamp.getTime()) / 1000);
+              totalOfflineDuration += Math.floor(
+                (now.getTime() - lastOfflineTimestamp.getTime()) / 1000,
+              );
             }
 
             lastOfflineTimestamp = new Date();
@@ -135,13 +152,19 @@ export default async (req: Request, res: Response): Promise<void> => {
             name,
             status: currentStatus,
             timestamp: timestamp,
-            onlinefor: currentStatus === "Online" ? `${totalOnlineDuration} seconds` : null,
-            offlineSince: currentStatus === "Offline" ? `${totalOfflineDuration} seconds` : null,
+            onlinefor:
+              currentStatus === "Online"
+                ? `${totalOnlineDuration} seconds`
+                : null,
+            offlineSince:
+              currentStatus === "Offline"
+                ? `${totalOfflineDuration} seconds`
+                : null,
             lastSeen: timestamp,
             timesOnline,
             firstSeen,
             ts,
-            lastSessionDuration: `${lastSessionDuration} seconds`
+            lastSessionDuration: `${lastSessionDuration} seconds`,
           };
 
           if (!firstSeen && currentStatus === "Online") {
@@ -159,13 +182,15 @@ export default async (req: Request, res: Response): Promise<void> => {
 
           writeStatusesToFile(statusData);
 
-          await new Promise(resolve => setTimeout(resolve, ITTERATION_DURATION));
+          await new Promise((resolve) =>
+            setTimeout(resolve, ITTERATION_DURATION),
+          );
         } catch (error) {
-          console.error('An error occurred:', error);
+          console.error("An error occurred:", error);
         }
       }
     } catch (error) {
-      console.error('An error occurred:', error);
+      console.error("An error occurred:", error);
       res.status(500).json({ error: error });
       console.error(`Sent 500 response due to error: ${error}`);
     } finally {
@@ -174,7 +199,7 @@ export default async (req: Request, res: Response): Promise<void> => {
       }
     }
   } catch (error) {
-    console.error('An error occurred:', error);
+    console.error("An error occurred:", error);
     res.status(500).json({ error: error });
     console.error(`Sent 500 response due to error: ${error}`);
   }

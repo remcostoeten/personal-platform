@@ -41,7 +41,9 @@ export const columns: ColumnDef<StatusObject>[] = [
     header: "online/offline for",
     cell: ({ row }) => (
       <>
-        {row.original.status === "Online" ? row.original.onlinefor : row.original.offlineSince}
+        {row.original.status === "Online"
+          ? row.original.onlinefor
+          : row.original.offlineSince}
       </>
     ),
   },
@@ -67,8 +69,10 @@ export const columns: ColumnDef<StatusObject>[] = [
       <OnlineIndicator
         size={4}
         color="emerald"
-        style={{ backgroundColor: row.original.status === "Online" ? "green" : "red" }}
+        style={{
+          backgroundColor: row.original.status === "Online" ? "green" : "red",
+        }}
       />
     ),
-  }
+  },
 ];

@@ -1,13 +1,15 @@
-'use client';
+"use client";
 import Link from "next/link";
 import {
   Activity,
   Home,
   LineChart,
-  ListFilter, Package,
+  ListFilter,
+  Package,
   Package2,
-  PanelLeft, ShoppingCart,
-  Users2
+  PanelLeft,
+  ShoppingCart,
+  Users2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,17 +23,13 @@ import {
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
-  DropdownMenuContent, DropdownMenuLabel,
+  DropdownMenuContent,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StartScraping from "@/components/ chat/StartScraping";
 import { StatusTable } from "@/components/ chat/table/StatusTable";
 import { columns } from "@/components/ chat/table/Columns";
@@ -39,7 +37,7 @@ import { statuses as statusData } from "@/statusData";
 import { useState } from "react";
 import ActivityMonitor from "@/components/ chat/ActivityMonitor";
 
-export  default function Dashboard() {
+export default function Dashboard() {
   const [pageNo, setPageNo] = useState(1);
   const itemsPerPage = 10; // change this to the number of items you want to display per page
   const startIndex = (pageNo - 1) * itemsPerPage;
@@ -50,7 +48,6 @@ export  default function Dashboard() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
-
       <div className="flex flex-col sm:gap-4 sm:py-4 ">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
           <Sheet>
@@ -107,7 +104,7 @@ export  default function Dashboard() {
               </nav>
             </SheetContent>
           </Sheet>
-            </header>
+        </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
           <Tabs defaultValue="all">
             <div className="flex items-center">
@@ -141,26 +138,28 @@ export  default function Dashboard() {
                     </DropdownMenuCheckboxItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <StartScraping/>
+                <StartScraping />
               </div>
-              </div>
+            </div>
             <TabsContent value="all">
               <Card x-chunk="dashboard-06-chunk-0">
                 <CardHeader>
-                  <CardTitle><span className="text-3xl">Activity monitor </span></CardTitle>
+                  <CardTitle>
+                    <span className="text-3xl">Activity monitor </span>
+                  </CardTitle>
                   <CardDescription>
-                    <ActivityMonitor  />
+                    <ActivityMonitor />
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                <StatusTable
+                  <StatusTable
                     data={statusData}
                     columns={columns}
                     totalChecks={statusData.length}
                     pageCount={pageCount}
                     pageNo={pageNo}
                     searchKey="status"
-                    />
+                  />
                 </CardContent>
                 <CardFooter>
                   <div className="flex items-center gap-4">
@@ -175,5 +174,5 @@ export  default function Dashboard() {
         </main>
       </div>
     </div>
-  )
+  );
 }

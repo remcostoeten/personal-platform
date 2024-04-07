@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Metadata } from "next";
 
@@ -7,9 +7,5 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <TooltipProvider>
-      {children}
-    </TooltipProvider>
-  );
+  return <TooltipProvider>{children}</TooltipProvider>;
 }
