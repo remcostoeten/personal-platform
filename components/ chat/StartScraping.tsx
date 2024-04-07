@@ -1,4 +1,3 @@
-"use client";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { PlusCircle } from "lucide-react";
@@ -23,6 +22,22 @@ function StartScraping() {
       });
   };
 
+  const clearStatus = () => {
+    fetch("/api/status/clear")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Status cleared:", data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }
+
   return (
     <>
       <Button
@@ -38,12 +53,19 @@ function StartScraping() {
           </>
         ) : (
           <span className="flex gap-2">
-
-       <OnlineIndicator/>
-            Currently scraping..</span>
+            <OnlineIndicator/>
+            Currently scraping..
+          </span>
         )}
       </Button>
-      </>
+      <Button
+        size="sm"
+        className="h-8 gap-1"
+        onClick={clearStatus} // Call the clearStatus function here
+      >
+        Clear
+      </Button>
+    </>
   );
 }
 

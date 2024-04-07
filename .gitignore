@@ -39,3 +39,4 @@ chrome-profile/**
 ~/chrome-profile/**
 ~/chrome-profile/AutofillStates/2020.11.2.164946/AG
 statusData.ts
+chromeprofile/
