@@ -66,9 +66,9 @@ export function StatusTable<TData, TValue>({
   const pageAsNumber = Number(page);
   const fallbackPage =
     isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber;
-  const per_page = searchParams?.get("limit") ?? "10";
+  const per_page = searchParams?.get("limit") ?? "20";
   const perPageAsNumber = Number(per_page);
-  const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber;
+  const fallbackPerPage = isNaN(perPageAsNumber) ? 20 : perPageAsNumber;
 
   if (!data) {
     console.log("No data provided");
