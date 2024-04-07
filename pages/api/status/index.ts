@@ -16,7 +16,10 @@ interface StatusObject {
   timesOnline: number;
   firstSeen: Date | string | null ;
   ts: any;
+  lastSessionDuration: string | null;
 }
+
+let lastSessionDuration = 0;
 
 let statusData: StatusObject[] = [];
 let previousStatus: string | null = null;
@@ -43,6 +46,7 @@ async function writeStatusesToFile(statuses: StatusObject[]) {
       timesOnline: number;
       firstSeen: Date | null;
       ts :any;
+      lastSessionDuration: string | null;
     }
 
     export const statuses: StatusObject[] = ${JSON.stringify(statuses, null, 2)};
@@ -98,6 +102,7 @@ export default async (req: Request, res: Response): Promise<void> => {
             if (previousStatus === "Offline") {
               totalOnlineDuration = 0;
             }
+
             if (lastOnlineTimestamp) {
               const now = new Date();
               totalOnlineDuration += Math.floor((now.getTime() - lastOnlineTimestamp.getTime()) / 1000);
@@ -116,10 +121,12 @@ export default async (req: Request, res: Response): Promise<void> => {
           if (previousStatus === "Offline" && currentStatus === "Online") {
             timesOnline++;
             totalOfflineDuration = 0;
+            lastSessionDuration = totalOnlineDuration; // Update last session duration
           }
 
           if (previousStatus === "Online" && currentStatus === "Offline") {
             totalOnlineDuration = 0;
+            lastSessionDuration = totalOfflineDuration; // Update last session duration
           }
 
           previousStatus = currentStatus;
@@ -133,7 +140,8 @@ export default async (req: Request, res: Response): Promise<void> => {
             lastSeen: timestamp,
             timesOnline,
             firstSeen,
-            ts
+            ts,
+            lastSessionDuration: `${lastSessionDuration} seconds`
           };
 
           if (!firstSeen && currentStatus === "Online") {
