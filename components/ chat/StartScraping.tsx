@@ -61,7 +61,7 @@ function StartScraping() {
       <Button
         size="sm"
         className="h-8 gap-1"
-        onClick={clearStatus} // Call the clearStatus function here
+        onClick={clearStatus}
       >
         Clear
       </Button>

@@ -115,10 +115,11 @@ export default async (req: Request, res: Response): Promise<void> => {
 
           if (previousStatus === "Offline" && currentStatus === "Online") {
             timesOnline++;
+            totalOfflineDuration = 0;
           }
 
-          if (previousStatus === "Offline") {
-
+          if (previousStatus === "Online" && currentStatus === "Offline") {
+            totalOnlineDuration = 0;
           }
 
           previousStatus = currentStatus;
@@ -137,10 +138,6 @@ export default async (req: Request, res: Response): Promise<void> => {
 
           if (!firstSeen && currentStatus === "Online") {
             firstSeen = timestamp;
-          }
-
-          if (currentStatus === "Offline") {
-            firstSeen = null;
           }
 
           if (currentStatus === "Online") {
