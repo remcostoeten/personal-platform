@@ -146,10 +146,9 @@ export  default function Dashboard() {
                 <StatusTable
                     data={statusData}
                     columns={columns}
-                    totalChecks={statusData.length}
                     searchKey="yourSearchKey" // replace with your actual search key
                     pageNo={1} // replace with your actual page number
-                    pageCount={0}/>
+                    totalChecks={statusData?.length} pageCount={0}/>
                 </CardContent>
                 <CardFooter>
                   <div className="text-xs text-muted-foreground">

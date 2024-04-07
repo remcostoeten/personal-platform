@@ -70,6 +70,11 @@ export function StatusTable<TData, TValue>({
   const perPageAsNumber = Number(per_page);
   const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber;
 
+  if (!data) {
+    console.log("No data provided");
+  }
+
+
   /* this can be used to get the selectedrows
   console.log("value", table.getFilteredSelectedRowModel()); */
 
