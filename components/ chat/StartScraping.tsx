@@ -40,12 +40,7 @@ function StartScraping() {
 
   return (
     <>
-      <Button
-        size="sm"
-        className="h-8 gap-1"
-        onClick={startScraping}
-        disabled={isLoading}
-      >
+      <Button size="sm" className="h-8 gap-1" onClick={startScraping}>
         {!isLoading ? (
           <>
             <PlusCircle className="h-3.5 w-3.5" />
