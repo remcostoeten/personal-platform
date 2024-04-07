@@ -159,8 +159,7 @@ export  default function Dashboard() {
                     pageCount={pageCount}
                     pageNo={pageNo}
                     searchKey="status"
-        pageNo={pageNo}
-        pageCount={pageCount}/>
+                    />
                 </CardContent>
                 <CardFooter>
                   <div className="flex items-center gap-4">
