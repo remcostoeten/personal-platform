@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React from "react";
 
 interface StatusData {
   name: string;
@@ -15,10 +15,10 @@ interface StatusData {
 }
 
 interface ActivityMonitorProps {
-  data: StatusData;
+  StatusData: StatusData;
 }
 
-const ActivityMonitor: React.FC<ActivityMonitorProps> = ({ data }) => {
+const ActivityMonitor: React.FC<ActivityMonitorProps> = ({ StatusData }) => {
   const {
     name,
     status,
@@ -26,14 +26,14 @@ const ActivityMonitor: React.FC<ActivityMonitorProps> = ({ data }) => {
     timesOnline,
     firstSeen,
     lastSessionDuration,
-  } = data;
+  } = StatusData;
 
   return (
     <div>
       <p>
-        {name} is currently {status}. Last seen at {lastSeen}.
-        The last online session lasted {lastSessionDuration} seconds.
-        A total of {timesOnline} online sessions since {firstSeen}.
+        {name} is currently {status}. Last seen at {lastSeen}. The last online
+        session lasted {lastSessionDuration} seconds. A total of {timesOnline}{" "}
+        online sessions since {firstSeen}.
       </p>
     </div>
   );
