@@ -16,6 +16,8 @@ const defaultCols = [
 export type ColumnId = (typeof defaultCols)[number]["id"];
 
 export type Task = {
+  priority: any;
+  label: any;
   id: string;
   title: string;
   description?: string;
