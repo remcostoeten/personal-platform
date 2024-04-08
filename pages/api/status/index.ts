@@ -92,7 +92,8 @@ export default async (req: Request, res: Response): Promise<void> => {
       while (true) {
         const time = getCurrentDateTime().time;
         const timestamp = time;
-        try {
+        lastSessionDuration = 0;
+          try {
           console.log(`Finding and clicking element for ${name}`);
           let element = await driver.wait(
             until.elementLocated(
@@ -165,8 +166,8 @@ export default async (req: Request, res: Response): Promise<void> => {
           }
 
           if (currentStatus === "Online") {
-            statusObject.onlinefor = `${totalOnlineDuration} seconds`;
-            statusObject.offlineSince = null;
+            totalOnlineDuration++; // Increment online duration for current session
+            lastSessionDuration = totalOnlineDuration; // Update last session duration
           }
 
           statusData.push(statusObject);
