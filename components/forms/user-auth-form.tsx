@@ -20,7 +20,7 @@ export default function UserAuthForm() {
     try {
       const auth = getAuth();
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("dashboard");
+      router.push("/dashboard");
     } catch (error) {
       console.error(error);
     }

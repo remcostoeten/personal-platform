@@ -1,17 +1,12 @@
 "use client";
-import {
-  ColumnDef,
-  PaginationState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
 import React, { useState } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import {
+  DoubleArrowLeftIcon,
+  DoubleArrowRightIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@radix-ui/react-icons";
 import {
   Select,
   SelectContent,
@@ -20,6 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Input,
+} from "@/components/ui/input";
+import {
   Table,
   TableBody,
   TableCell,
@@ -27,14 +25,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { StatusObject } from "@/statusData";
+import { ColumnDef, useReactTable } from "@tanstack/react-table";
+import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, PaginationState } from "@tanstack/react-table";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -44,9 +38,7 @@ interface DataTableProps<TData, TValue> {
   totalChecks: number;
   pageSizeOptions?: number[];
   pageCount: number;
-  searchParams?: {
-    [key: string]: string | string[] | undefined;
-  };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 export function StatusTable<TData, TValue>({
@@ -61,11 +53,11 @@ export function StatusTable<TData, TValue>({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  // Search params
+
   const page = searchParams?.get("page") ?? "1";
   const pageAsNumber = Number(page);
-  const fallbackPage =
-    isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber;
+  const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber;
+
   const per_page = searchParams?.get("limit") ?? "20";
   const perPageAsNumber = Number(per_page);
   const fallbackPerPage = isNaN(perPageAsNumber) ? 20 : perPageAsNumber;
@@ -74,14 +66,9 @@ export function StatusTable<TData, TValue>({
     console.log("No data provided");
   }
 
-  /* this can be used to get the selectedrows
-  console.log("value", table.getFilteredSelectedRowModel()); */
-
-  // Create query string
   const createQueryString = React.useCallback(
     (params: Record<string, string | number | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams?.toString());
-
+      const newSearchParams = new URLSearchParams(searchParams?.toString() ?? '');
       for (const [key, value] of Object.entries(params)) {
         if (value === null) {
           newSearchParams.delete(key);
@@ -89,18 +76,15 @@ export function StatusTable<TData, TValue>({
           newSearchParams.set(key, String(value));
         }
       }
-
       return newSearchParams.toString();
     },
     [searchParams],
   );
 
-  // Handle server-side pagination
-  const [{ pageIndex, pageSize }, setPagination] =
-    React.useState<PaginationState>({
-      pageIndex: fallbackPage - 1,
-      pageSize: fallbackPerPage,
-    });
+  const [{ pageIndex, pageSize }, setPagination] = React.useState<PaginationState>({
+    pageIndex: fallbackPage - 1,
+    pageSize: fallbackPerPage,
+  });
 
   React.useEffect(() => {
     router.push(
@@ -108,12 +92,8 @@ export function StatusTable<TData, TValue>({
         page: pageIndex + 1,
         limit: pageSize,
       })}`,
-      {
-        scroll: false,
-      },
+      { scroll: false },
     );
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndex, pageSize]);
 
   const [isReversed, setIsReversed] = useState(false);
@@ -132,9 +112,7 @@ export function StatusTable<TData, TValue>({
     pageCount: pageCount ?? -1,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      pagination: { pageIndex, pageSize },
-    },
+    state: { pagination: { pageIndex, pageSize } },
     onPaginationChange: setPagination,
     getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true,
@@ -142,33 +120,6 @@ export function StatusTable<TData, TValue>({
   });
 
   const searchValue = table.getColumn(searchKey)?.getFilterValue() as string;
-
-  // React.useEffect(() => {
-  //   if (debounceValue.length > 0) {
-  //     router.push(
-  //       `${pathname}?${createQueryString({
-  //         [selectedOption.value]: `${debounceValue}${
-  //           debounceValue.length > 0 ? `.${filterVariety}` : ""
-  //         }`,
-  //       })}`,
-  //       {
-  //         scroll: false,
-  //       }
-  //     )
-  //   }
-
-  //   if (debounceValue.length === 0) {
-  //     router.push(
-  //       `${pathname}?${createQueryString({
-  //         [selectedOption.value]: null,
-  //       })}`,
-  //       {
-  //         scroll: false,
-  //       }
-  //     )
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [debounceValue, filterVariety, selectedOption.value])
 
   React.useEffect(() => {
     if (searchValue?.length > 0) {
@@ -178,27 +129,19 @@ export function StatusTable<TData, TValue>({
           limit: null,
           search: searchValue,
         })}`,
-        {
-          scroll: false,
-        },
+        { scroll: false },
       );
-    }
-    if (searchValue?.length === 0 || searchValue === undefined) {
+    } else {
       router.push(
         `${pathname}?${createQueryString({
           page: null,
           limit: null,
           search: null,
         })}`,
-        {
-          scroll: false,
-        },
+        { scroll: false },
       );
     }
-
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue]);
 
   return (
@@ -215,19 +158,23 @@ export function StatusTable<TData, TValue>({
         <Table className="relative">
           <TableHeader>
 
-          <button onClick={() => setIsReversed(!isReversed)}>Toggle Order</button>
+            <button onClick={() => setIsReversed(!isReversed)}>Toggle Order</button>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
+                    {header.isPlaceholder ? null : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+                    <span
+                      onClick={() => table.sortColumn(header.id)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {header.isSorted ? (header.isSortedDesc ? " 🔽" : " 🔼") : ""}
+                    </span>
+                  </TableHead>
                   );
                 })}
               </TableRow>
@@ -252,10 +199,7 @@ export function StatusTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -264,7 +208,6 @@ export function StatusTable<TData, TValue>({
         </Table>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-
       <div className="flex flex-col gap-2 sm:flex-row items-center justify-end space-x-2 py-4">
         <div className="flex items-center justify-between w-full">
           <div className="flex-1 text-sm text-muted-foreground">
@@ -283,9 +226,7 @@ export function StatusTable<TData, TValue>({
                 }}
               >
                 <SelectTrigger className="h-8 w-[70px]">
-                  <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
-                  />
+                  <SelectValue placeholder={table.getState().pagination.pageSize} />
                 </SelectTrigger>
                 <SelectContent side="top">
                   {pageSizeOptions.map((pageSize) => (
@@ -333,8 +274,7 @@ export function StatusTable<TData, TValue>({
             </Button>
             <Button
               aria-label="Go to last page"
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
+              variant="outli dden h-8 w-8 p-0 lg:flex"
               onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               disabled={!table.getCanNextPage()}
             >

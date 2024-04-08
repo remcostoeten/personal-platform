@@ -6,6 +6,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { auth } from "../database/firebase";
+import { usePathname, useRouter } from "next/navigation";
 
 // User data type interface
 interface UserType {
@@ -25,11 +26,20 @@ export const AuthContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  // Define the constants for the user and loading state
   const [user, setUser] = useState<UserType>({ email: null, uid: null });
   const [loading, setLoading] = useState<Boolean>(true);
-  console.log(user);
-  // Update the state depending on auth
+  const router = useRouter();
+  const pathname = usePathname();
+  useEffect(() => {
+    if (user && pathname === "/") {
+      console.log("User is logged in");
+      router.push("/dashboard");
+    } else if (!user) {
+      console.log("User is not logged in");
+      router.push("/");
+    }
+  }, [user, router, pathname]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -46,6 +56,7 @@ export const AuthContextProvider = ({
 
     return () => unsubscribe();
   }, []);
+
 
   // Sign up the user
   const signUp = (email: string, password: string) => {
