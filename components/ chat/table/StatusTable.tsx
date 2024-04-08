@@ -8,7 +8,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import React from "react";
+import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,11 +116,15 @@ export function StatusTable<TData, TValue>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndex, pageSize]);
 
+  const [isReversed, setIsReversed] = useState(false);
+
+  const orderedData = isReversed ? [...data].reverse() : data;
+
   const paginatedData = React.useMemo(() => {
     const startIndex = pageIndex * pageSize;
     const endIndex = startIndex + pageSize;
-    return data.slice(startIndex, endIndex);
-  }, [data, pageIndex, pageSize]);
+    return orderedData.slice(startIndex, endIndex);
+  }, [orderedData, pageIndex, pageSize]);
 
   const table = useReactTable({
     data: paginatedData ?? [],
@@ -210,6 +214,8 @@ export function StatusTable<TData, TValue>({
       <ScrollArea className="rounded-md border h-[calc(80vh-220px)]">
         <Table className="relative">
           <TableHeader>
+
+          <button onClick={() => setIsReversed(!isReversed)}>Toggle Order</button>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
