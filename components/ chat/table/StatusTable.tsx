@@ -165,7 +165,7 @@ export function StatusTable<TData, TValue>({
             />
             <ScrollArea className="rounded-md border h-[calc(80vh-220px)]">
                 <Table className="relative">
-                    <TableHeader className="fixed">
+                    <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
@@ -211,9 +211,9 @@ export function StatusTable<TData, TValue>({
                             </TableRow>
                         )}
                     </TableBody>
-                </Table>
+                </Table >
                 <ScrollBar orientation="horizontal" />
-            </ScrollArea>
+            </ScrollArea >
             <div className="flex flex-col gap-2 sm:flex-row items-center justify-end space-x-2 py-4">
                 <div className="flex items-center justify-between w-full">
                     <div className="flex-1 text-sm text-muted-foreground">

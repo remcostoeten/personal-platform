@@ -1,12 +1,13 @@
 "use client";
+import { dayPeriod } from "@/core/helpers/dates";
 import { StatusObject } from "@/statusData";
 import React from "react";
 
-interface ActivityMonitorProps {
+type ActivityMonitorProps = {
     StatusData: StatusObject;
 }
 
-const ActivityMonitor: React.FC<ActivityMonitorProps> = ({ StatusData }) => {
+const ActivityMonitor = ({ StatusData }: ActivityMonitorProps) => {
     const {
         name,
         status,
@@ -21,7 +22,9 @@ const ActivityMonitor: React.FC<ActivityMonitorProps> = ({ StatusData }) => {
             <p>
                 {name ? name : "no data"} is currently {status ? status : "no data"}. Last seen at {lastSeen ? lastSeen : "no data"}. The last online
                 session lasted {lastSessionDuration ? lastSessionDuration : "no data"} seconds. A total of {timesOnline ? timesOnline : "no data"}{" "}
-                online session since <span className="font-semibold">{firstTimestamp ? firstTimestamp : "no data"}</span>.
+                online session since <span className="font-semibold">
+                    {firstTimestamp ? `${firstTimestamp} ${dayPeriod(firstTimestamp)}` : "no data"}
+                </span>
             </p>
         </div>
     );
