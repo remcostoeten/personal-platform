@@ -135,9 +135,10 @@ export default async (req: Request, res: Response): Promise<void> => {
                     }
 
                     if (previousStatus === "Online" && currentStatus === "Offline") {
+                        timesOnline++;
                         lastSessionDuration = totalOnlineDuration;
                         totalOnlineDuration = 0;
-                        lastSeen = new Date();
+
                     }
 
                     previousStatus = currentStatus;
