@@ -1,5 +1,5 @@
 "use client";
-import { dayPeriod } from "@/core/helpers/dates";
+import { dayPeriod } from "@/core/helpers/getCurrentDateTime";
 import { StatusObject } from "@/statusData";
 import React from "react";
 
