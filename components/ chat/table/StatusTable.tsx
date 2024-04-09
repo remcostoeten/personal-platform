@@ -14,9 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Input,
-} from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -28,7 +26,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ColumnDef, useReactTable } from "@tanstack/react-table";
-import { flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, PaginationState } from "@tanstack/react-table";
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  PaginationState,
+} from "@tanstack/react-table";
+import { StatusObject } from "@/statusData";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -56,7 +61,8 @@ export function StatusTable<TData, TValue>({
 
   const page = searchParams?.get("page") ?? "1";
   const pageAsNumber = Number(page);
-  const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber;
+  const fallbackPage =
+    isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber;
 
   const per_page = searchParams?.get("limit") ?? "20";
   const perPageAsNumber = Number(per_page);
@@ -68,7 +74,9 @@ export function StatusTable<TData, TValue>({
 
   const createQueryString = React.useCallback(
     (params: Record<string, string | number | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams?.toString() ?? '');
+      const newSearchParams = new URLSearchParams(
+        searchParams?.toString() ?? "",
+      );
       for (const [key, value] of Object.entries(params)) {
         if (value === null) {
           newSearchParams.delete(key);
@@ -81,10 +89,11 @@ export function StatusTable<TData, TValue>({
     [searchParams],
   );
 
-  const [{ pageIndex, pageSize }, setPagination] = React.useState<PaginationState>({
-    pageIndex: fallbackPage - 1,
-    pageSize: fallbackPerPage,
-  });
+  const [{ pageIndex, pageSize }, setPagination] =
+    React.useState<PaginationState>({
+      pageIndex: fallbackPage - 1,
+      pageSize: fallbackPerPage,
+    });
 
   React.useEffect(() => {
     router.push(
@@ -96,15 +105,40 @@ export function StatusTable<TData, TValue>({
     );
   }, [pageIndex, pageSize]);
 
-  const [isReversed, setIsReversed] = useState(false);
+  const [sortDirections, setSortDirections] = useState<{
+    [key: string]: boolean;
+  }>({});
 
-  const orderedData = isReversed ? [...data].reverse() : data;
+  const toggleSortDirection = (columnId: string) => {
+    setSortDirections((prevSortDirections) => ({
+      ...prevSortDirections,
+      [columnId]: !prevSortDirections[columnId],
+    }));
+  };
 
   const paginatedData = React.useMemo(() => {
+    let sortedData = [...data];
+
+    for (const column of columns) {
+      if (sortDirections[column.id]) {
+        sortedData = sortedData.sort((a, b) => {
+          const aValue = column.accessor(a);
+          const bValue = column.accessor(b);
+          return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+        });
+      } else if (sortDirections[column.id] === false) {
+        sortedData = sortedData.sort((a, b) => {
+          const aValue = column.accessor(a);
+          const bValue = column.accessor(b);
+          return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+        });
+      }
+    }
+
     const startIndex = pageIndex * pageSize;
     const endIndex = startIndex + pageSize;
-    return orderedData.slice(startIndex, endIndex);
-  }, [orderedData, pageIndex, pageSize]);
+    return sortedData.slice(startIndex, endIndex);
+  }, [data, columns, pageIndex, pageSize, sortDirections]);
 
   const table = useReactTable({
     data: paginatedData ?? [],
@@ -157,24 +191,26 @@ export function StatusTable<TData, TValue>({
       <ScrollArea className="rounded-md border h-[calc(80vh-220px)]">
         <Table className="relative">
           <TableHeader>
-
-            <button onClick={() => setIsReversed(!isReversed)}>Toggle Order</button>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
-                    {header.isPlaceholder ? null : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                    <span
-                      onClick={() => table.sortColumn(header.id)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {header.isSorted ? (header.isSortedDesc ? " 🔽" : " 🔼") : ""}
-                    </span>
-                  </TableHead>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                      <span
+                        onClick={() => {
+                          toggleSortDirection(header.id);
+                        }}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {sortDirections[header.id] ? " 🔽" : " 🔼"}
+                      </span>
+                    </TableHead>
                   );
                 })}
               </TableRow>
@@ -199,7 +235,10 @@ export function StatusTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -226,7 +265,9 @@ export function StatusTable<TData, TValue>({
                 }}
               >
                 <SelectTrigger className="h-8 w-[70px]">
-                  <SelectValue placeholder={table.getState().pagination.pageSize} />
+                  <SelectValue
+                    placeholder={table.getState().pagination.pageSize}
+                  />
                 </SelectTrigger>
                 <SelectContent side="top">
                   {pageSizeOptions.map((pageSize) => (

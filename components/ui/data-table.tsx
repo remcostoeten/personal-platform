@@ -78,22 +78,22 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row?.getIsSelected?.() && "selected"}
                 >
-                  {row?.getVisibleCells?.()?.map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell?.column?.columnRenderer,
-                        cell?.value,
-                        cell?.row?.getData?.()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row
+                    ?.getVisibleCells?.()
+                    ?.map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell?.column?.columnRenderer,
+                          cell?.value,
+                          cell?.row?.getData?.(),
+                        )}
+                      </TableCell>
+                    ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns?.length}>
-                  No data
-                </TableCell>
+                <TableCell colSpan={columns?.length}>No data</TableCell>
               </TableRow>
             )}
           </TableBody>

@@ -33,20 +33,49 @@ import StartScraping from "@/components/ chat/StartScraping";
 import { StatusTable } from "@/components/ chat/table/StatusTable";
 import { columns } from "@/components/ chat/table/Columns";
 import { statuses as statusData } from "@/statusData";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ActivityMonitor from "@/components/ chat/ActivityMonitor";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import OnlineIndicator from "@/components/effects/OnlineIndicator";
+import { RESULTS_PER_PAGE } from "@/components/ chat/config";
 
 export default function Dashboard() {
   const [pageNo, setPageNo] = useState(1);
-  const itemsPerPage = 10; // change this to the number of items you want to display per page
+  const itemsPerPage = RESULTS_PER_PAGE;
   const startIndex = (pageNo - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentPageData = statusData.slice(startIndex, endIndex);
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
 
-  const pageCount = Math.ceil(statusData.length / itemsPerPage);
-  const lastStatusData = statusData[statusData.length - 1];
+  const handleSort = (columnName) => {
+    if (sortColumn === columnName) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(columnName);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedData = useMemo(() => {
+    if (!sortColumn) return statusData;
+    return [...statusData].sort((a, b) => {
+      const column = columns.find((col) => col.accessor === sortColumn);
+      if (!column || !column.sortFunction) return 0;
+      const sortResult = column.sortFunction(a, b);
+      return sortDirection === "asc" ? sortResult : -sortResult;
+    });
+  }, [statusData, sortColumn, sortDirection]);
+
+  const getLastStatusData = (data) => {
+    const lastData = data[data.length - 1];
+    return {
+      ...lastData,
+      firstSeen: lastData.firstSeen?.toString(),
+    };
+  };
+
+  const lastStatusDataStringified = getLastStatusData(statusData);
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <div className="flex flex-col sm:gap-4 sm:py-4 ">
@@ -164,7 +193,7 @@ export default function Dashboard() {
                     </span>
                   </CardTitle>
                   <CardDescription>
-                    <ActivityMonitor StatusData={lastStatusData} />
+                    <ActivityMonitor StatusData={lastStatusDataStringified} />
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
