@@ -93,7 +93,7 @@ export default async (req: Request, res: Response): Promise<void> => {
         const time = getCurrentDateTime().time;
         const timestamp = time;
         lastSessionDuration = 0;
-          try {
+        try {
           console.log(`Finding and clicking element for ${name}`);
           let element = await driver.wait(
             until.elementLocated(

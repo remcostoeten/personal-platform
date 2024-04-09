@@ -57,7 +57,6 @@ export const AuthContextProvider = ({
     return () => unsubscribe();
   }, []);
 
-
   // Sign up the user
   const signUp = (email: string, password: string) => {
     return createUserWithEmailAndPassword(auth, email, password);
