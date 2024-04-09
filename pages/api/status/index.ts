@@ -4,7 +4,7 @@ import path from "path";
 import fs from "fs";
 import { Request, Response } from "express";
 import { getCurrentDateTime } from "@/core/helpers/getCurrentDateTime";
-import { CHROME_PROFILE_PATH, ITTERATION_DURATION, SCRAPE_URL } from "@/components/ chat/config";
+import { CHROME_PROFILE_PATH, ITTERATION_DURATION } from "@/components/ chat/config";
 
 interface StatusObject {
     name: string;
@@ -26,14 +26,14 @@ let statusData: StatusObject[] = [];
 let previousStatus: string | null = null;
 let statusChangedAt: number | null = null;
 let timesOnline: number = 0;
-let timesOffline: number = 0;
 let firstSeen: Date | string | null = null;
 let lastSeen: Date | string | null = null;
 let totalOnlineDuration = 0;
 let lastOnlineTimestamp = null;
+let timesOffline: number = 0;
 let totalOfflineDuration = 0;
 let lastOfflineTimestamp = null;
-let firstTimestamp = getCurrentDateTime().time;
+let firstTimestamp = (parseFloat(getCurrentDateTime().time)).toFixed(2);
 
 async function writeStatusesToFile(statuses: StatusObject[]) {
     const fileContent = `
@@ -45,8 +45,8 @@ async function writeStatusesToFile(statuses: StatusObject[]) {
       offlineSince: string | null;
       lastSeen: string | null;
       timesOnline: number;
-      timesOffline: number;
       firstSeen: Date | null;
+      timesOffline: number;
       firstTimestamp :any;
       lastSessionDuration: string | null;
     }
@@ -86,7 +86,7 @@ export default async (req: Request, res: Response): Promise<void> => {
 
         try {
             console.log("Navigating to WhatsApp");
-            await driver.get(SCRAPE_URL);
+            await driver.get("https://web.whatsapp.com/");
             console.log("Successfully navigated to WhatsApp");
 
             while (true) {
@@ -95,7 +95,12 @@ export default async (req: Request, res: Response): Promise<void> => {
                 lastSessionDuration = 0;
                 try {
                     console.log(`Finding and clicking element for ${name}`);
-                    let element = await driver.findElement(By.xpath("//span[contains(text(), 'Lars')]"));
+                    let element = await driver.wait(
+                        until.elementLocated(
+                            By.xpath(`//span[contains(text(), '${name}')]`),
+                        ),
+                        ITTERATION_DURATION,
+                    );
                     await element.click();
 
                     console.log("Getting status");
@@ -129,14 +134,14 @@ export default async (req: Request, res: Response): Promise<void> => {
                         timesOnline++;
                         lastSessionDuration = totalOfflineDuration;
                         totalOfflineDuration = 0;
-                        lastSeen = timestamp;
+
                     }
 
                     if (previousStatus === "Online" && currentStatus === "Offline") {
                         timesOffline++;
                         lastSessionDuration = totalOnlineDuration;
                         totalOnlineDuration = 0;
-                        lastSeen = timestamp;
+                        lastSeen = new Date();
                     }
 
                     previousStatus = currentStatus;
@@ -155,7 +160,6 @@ export default async (req: Request, res: Response): Promise<void> => {
                                 : null,
                         lastSeen,
                         timesOnline,
-                        timesOffline,
                         firstSeen,
                         firstTimestamp,
                         lastSessionDuration: `${lastSessionDuration} seconds`,

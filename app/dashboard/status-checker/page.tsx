@@ -18,7 +18,7 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"; OnlineIndicator
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -182,11 +182,7 @@ export default function Dashboard() {
                                                     ({statusData.length})
                                                     <OnlineIndicator
                                                         size={4}
-                                                        color="emerald"
-                                                        style={{
-                                                            backgroundColor:
-                                                                status === "Online" ? "green" : "red",
-                                                        }}
+                                                        color={statusData[0].status === "Online" ? "green" : "red"}
                                                     />
                                                 </TooltipTrigger>
                                             </Tooltip>
