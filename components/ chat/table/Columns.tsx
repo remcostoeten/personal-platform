@@ -48,8 +48,10 @@ export const columns: ColumnDef<StatusObject>[] = [
     ),
   },
   {
-    accessorKey: "ts",
-    header: "last seen",
+    // On boot up show this, then update to last seen when the user goes offline
+    accessorKey: "firstTimestamp",
+    header: "First timestamp",
+
   },
   {
     accessorKey: "timesOnline",
