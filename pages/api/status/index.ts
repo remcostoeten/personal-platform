@@ -4,7 +4,7 @@ import path from "path";
 import fs from "fs";
 import { Request, Response } from "express";
 import { getCurrentDateTime } from "@/core/helpers/getCurrentDateTime";
-import { CHROME_PROFILE_PATH, ITTERATION_DURATION } from "@/components/ chat/config";
+import { CHROME_PROFILE_PATH, ITTERATION_DURATION, SCRAPE_URL } from "@/components/ chat/config";
 
 interface StatusObject {
     name: string;
@@ -14,6 +14,7 @@ interface StatusObject {
     offlineSince: string | null;
     lastSeen: Date | string | null;
     timesOnline: number;
+    timesOffline: number;
     firstSeen: Date | string | null;
     firstTimestamp: number | string | null;
     lastSessionDuration: string | null;
@@ -25,13 +26,14 @@ let statusData: StatusObject[] = [];
 let previousStatus: string | null = null;
 let statusChangedAt: number | null = null;
 let timesOnline: number = 0;
+let timesOffline: number = 0;
 let firstSeen: Date | string | null = null;
 let lastSeen: Date | string | null = null;
 let totalOnlineDuration = 0;
 let lastOnlineTimestamp = null;
 let totalOfflineDuration = 0;
 let lastOfflineTimestamp = null;
-let firstTimestamp = (parseFloat(getCurrentDateTime().time)).toFixed(2);
+let firstTimestamp = getCurrentDateTime().time;
 
 async function writeStatusesToFile(statuses: StatusObject[]) {
     const fileContent = `
@@ -43,6 +45,7 @@ async function writeStatusesToFile(statuses: StatusObject[]) {
       offlineSince: string | null;
       lastSeen: string | null;
       timesOnline: number;
+      timesOffline: number;
       firstSeen: Date | null;
       firstTimestamp :any;
       lastSessionDuration: string | null;
@@ -83,7 +86,7 @@ export default async (req: Request, res: Response): Promise<void> => {
 
         try {
             console.log("Navigating to WhatsApp");
-            await driver.get("https://web.whatsapp.com/");
+            await driver.get(SCRAPE_URL);
             console.log("Successfully navigated to WhatsApp");
 
             while (true) {
@@ -92,12 +95,7 @@ export default async (req: Request, res: Response): Promise<void> => {
                 lastSessionDuration = 0;
                 try {
                     console.log(`Finding and clicking element for ${name}`);
-                    let element = await driver.wait(
-                        until.elementLocated(
-                            By.xpath(`//span[contains(text(), '${name}')]`),
-                        ),
-                        ITTERATION_DURATION,
-                    );
+                    let element = await driver.findElement(By.xpath("//span[contains(text(), 'Lars')]"));
                     await element.click();
 
                     console.log("Getting status");
@@ -125,20 +123,20 @@ export default async (req: Request, res: Response): Promise<void> => {
                         }
 
                         lastOfflineTimestamp = new Date();
-                        lastSeen = new Date(); // Update lastSeen when status changes to "Offline"
                     }
 
                     if (previousStatus === "Offline" && currentStatus === "Online") {
                         timesOnline++;
                         lastSessionDuration = totalOfflineDuration;
                         totalOfflineDuration = 0;
+                        lastSeen = timestamp;
                     }
 
                     if (previousStatus === "Online" && currentStatus === "Offline") {
-                        timesOnline++;
+                        timesOffline++;
                         lastSessionDuration = totalOnlineDuration;
                         totalOnlineDuration = 0;
-
+                        lastSeen = timestamp;
                     }
 
                     previousStatus = currentStatus;
@@ -157,6 +155,7 @@ export default async (req: Request, res: Response): Promise<void> => {
                                 : null,
                         lastSeen,
                         timesOnline,
+                        timesOffline,
                         firstSeen,
                         firstTimestamp,
                         lastSessionDuration: `${lastSessionDuration} seconds`,
