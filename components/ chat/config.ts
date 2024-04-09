@@ -1,4 +1,4 @@
-const ITTERATION_DURATION = 1100;
+const ITTERATION_DURATION = 5500;
 const RESULTS_PER_PAGE = 10;
 const CHROME_PROFILE_PATH = "../../../../../chromeprofile";
 const SCRAPE_URL = 'https://web.whatsapp.com/'

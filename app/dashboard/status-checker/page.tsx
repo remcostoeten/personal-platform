@@ -44,27 +44,6 @@ export default function Dashboard() {
     const itemsPerPage = RESULTS_PER_PAGE;
     const startIndex = (pageNo - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const [sortColumn, setSortColumn] = useState(null);
-    const [sortDirection, setSortDirection] = useState("asc");
-
-    const handleSort = (columnName) => {
-        if (sortColumn === columnName) {
-            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-        } else {
-            setSortColumn(columnName);
-            setSortDirection("asc");
-        }
-    };
-
-    const sortedData = useMemo(() => {
-        if (!sortColumn) return statusData;
-        return [...statusData].sort((a, b) => {
-            const column = columns.find((col) => col.accessor === sortColumn);
-            if (!column || !column.sortFunction) return 0;
-            const sortResult = column.sortFunction(a, b);
-            return sortDirection === "asc" ? sortResult : -sortResult;
-        });
-    }, [statusData, sortColumn, sortDirection]);
 
     const getLastStatusData = (data) => {
         const lastData = data[data.length - 1];
@@ -182,7 +161,7 @@ export default function Dashboard() {
                                                     ({statusData.length})
                                                     <OnlineIndicator
                                                         size={4}
-                                                        color={statusData[0].status === "Online" ? "green" : "red"}
+                                                        color={statusData[0].status === "Online" ? "emerald" : "red"}
                                                     />
                                                 </TooltipTrigger>
                                             </Tooltip>
@@ -197,8 +176,6 @@ export default function Dashboard() {
                                         data={statusData}
                                         columns={columns}
                                         totalChecks={statusData.length}
-                                        sortColumn={sortColumn}
-                                        sortDirection={sortDirection}
                                         pageCount={Math.ceil(statusData.length / itemsPerPage)}
                                         pageNo={pageNo}
                                         searchKey={""}
