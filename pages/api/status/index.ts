@@ -18,7 +18,7 @@ interface StatusObject {
   lastSeen: string | null;
   timesOnline: number;
   firstSeen: Date | string | null;
-  ts: any;
+  firstTimestamp: any;
   lastSessionDuration: string | null;
 }
 
@@ -34,7 +34,7 @@ let totalOnlineDuration = 0;
 let lastOnlineTimestamp = null;
 let totalOfflineDuration = 0;
 let lastOfflineTimestamp = null;
-let ts = getCurrentDateTime().time;
+let firstTimestamp = getCurrentDateTime().time;
 
 async function writeStatusesToFile(statuses: StatusObject[]) {
   const fileContent = `
@@ -47,7 +47,7 @@ async function writeStatusesToFile(statuses: StatusObject[]) {
       lastSeen: string | null;
       timesOnline: number;
       firstSeen: Date | null;
-      ts :any;
+      firstTimestamp :any;
       lastSessionDuration: string | null;
     }
 
@@ -131,13 +131,13 @@ export default async (req: Request, res: Response): Promise<void> => {
 
           if (previousStatus === "Offline" && currentStatus === "Online") {
             timesOnline++;
+            lastSessionDuration = totalOfflineDuration;
             totalOfflineDuration = 0;
-            lastSessionDuration = totalOnlineDuration; // Update last session duration
           }
 
           if (previousStatus === "Online" && currentStatus === "Offline") {
+            lastSessionDuration = totalOnlineDuration;
             totalOnlineDuration = 0;
-            lastSessionDuration = totalOfflineDuration; // Update last session duration
           }
 
           previousStatus = currentStatus;
@@ -157,7 +157,7 @@ export default async (req: Request, res: Response): Promise<void> => {
             lastSeen: timestamp,
             timesOnline,
             firstSeen,
-            ts,
+            firstTimestamp,
             lastSessionDuration: `${lastSessionDuration} seconds`,
           };
 

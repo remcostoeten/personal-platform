@@ -9,7 +9,7 @@ interface StatusData {
   offlineSince: string | null;
   lastSeen: string;
   timesOnline: number;
-  firstSeen: string;
+  FirstTimeOnline: string;
   ts: string;
   lastSessionDuration: string;
 }
