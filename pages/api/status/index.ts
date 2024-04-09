@@ -3,7 +3,7 @@ import chrome from "selenium-webdriver/chrome";
 import path from "path";
 import fs from "fs";
 import { Request, Response } from "express";
-import { getCurrentDateTime } from "@/core/helpers/getCurrentDateTime";
+import { getCurrentDateTime } from "@/core/helpers/dates";
 import {
     CHROME_PROFILE_PATH,
     ITTERATION_DURATION,
@@ -15,7 +15,6 @@ interface StatusObject {
     timestamp: string;
     onlinefor: string | null;
     offlineSince: string | null;
-    lastSeen: Date | string | null;
     timesOnline: number;
     firstSeen: Date | string | null;
     firstTimestamp: number | string | null;
@@ -29,7 +28,7 @@ let previousStatus: string | null = null;
 let statusChangedAt: number | null = null;
 let timesOnline: number = 0;
 let firstSeen: Date | string | null = null;
-let lastSeen: Date | string | null = null;
+let lastSeen: lastSeen;
 let totalOnlineDuration = 0;
 let lastOnlineTimestamp = null;
 let totalOfflineDuration = 0;
@@ -138,6 +137,7 @@ export default async (req: Request, res: Response): Promise<void> => {
                     if (previousStatus === "Online" && currentStatus === "Offline") {
                         lastSessionDuration = totalOnlineDuration;
                         totalOnlineDuration = 0;
+                        lastSeen = new Date();
                     }
 
                     previousStatus = currentStatus;
