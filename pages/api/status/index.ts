@@ -3,11 +3,8 @@ import chrome from "selenium-webdriver/chrome";
 import path from "path";
 import fs from "fs";
 import { Request, Response } from "express";
-import { getCurrentDateTime } from "@/core/helpers/dates";
-import {
-    CHROME_PROFILE_PATH,
-    ITTERATION_DURATION,
-} from "@/components/ chat/config";
+import { getCurrentDateTime } from "@/core/helpers/getCurrentDateTime";
+import { CHROME_PROFILE_PATH, ITTERATION_DURATION } from "@/components/ chat/config";
 
 interface StatusObject {
     name: string;
@@ -15,6 +12,7 @@ interface StatusObject {
     timestamp: string;
     onlinefor: string | null;
     offlineSince: string | null;
+    lastSeen: Date | string | null;
     timesOnline: number;
     firstSeen: Date | string | null;
     firstTimestamp: number | string | null;
@@ -28,7 +26,7 @@ let previousStatus: string | null = null;
 let statusChangedAt: number | null = null;
 let timesOnline: number = 0;
 let firstSeen: Date | string | null = null;
-let lastSeen: lastSeen;
+let lastSeen: Date | string | null = null;
 let totalOnlineDuration = 0;
 let lastOnlineTimestamp = null;
 let totalOfflineDuration = 0;
@@ -108,6 +106,7 @@ export default async (req: Request, res: Response): Promise<void> => {
                     try {
                         await driver.findElement(By.xpath("//span[@title='Online']"));
                         currentStatus = "Online";
+                        lastOnlineTimestamp = new Date();
 
                         if (lastOnlineTimestamp) {
                             const now = new Date();
@@ -126,6 +125,7 @@ export default async (req: Request, res: Response): Promise<void> => {
                         }
 
                         lastOfflineTimestamp = new Date();
+                        lastSeen = new Date(); // Update lastSeen when status changes to "Offline"
                     }
 
                     if (previousStatus === "Offline" && currentStatus === "Online") {
@@ -163,21 +163,6 @@ export default async (req: Request, res: Response): Promise<void> => {
 
                     if (!firstSeen && currentStatus === "Online") {
                         firstSeen = timestamp;
-                    }
-
-                    let lastOnline: Date | null = null;
-                    let lastStatus: string = currentStatus;
-
-                    if (currentStatus !== lastStatus) {
-                        if (lastStatus === "Online") {
-                            lastOnline = new Date(); // or use a function to get the current timestamp
-                        }
-                        lastStatus = currentStatus;
-                    }
-
-                    if (currentStatus === "Online") {
-                        totalOnlineDuration++; // Increment online duration for current session
-                        lastSessionDuration = totalOnlineDuration; // Update last session duration
                     }
 
                     statusData.push(statusObject);
