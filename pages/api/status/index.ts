@@ -15,7 +15,7 @@ interface StatusObject {
     timestamp: string;
     onlinefor: string | null;
     offlineSince: string | null;
-    lastSeen: string | null;
+    lastSeen: Date | string | null;
     timesOnline: number;
     firstSeen: Date | string | null;
     firstTimestamp: number | string | null;
