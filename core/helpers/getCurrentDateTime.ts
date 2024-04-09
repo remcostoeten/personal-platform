@@ -7,7 +7,7 @@ export const getCurrentDateTime = () => {
     return { isoString: today.toISOString(), date, time };
 };
 
-export const dayPeriod = (date: string) => {
+export const dayPeriod = (date: Date | string) => {
     const dateObj = new Date(date);
     const hours = dateObj.getHours();
     return hours < 12 ? 'AM' : 'PM';
