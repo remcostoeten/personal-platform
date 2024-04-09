@@ -33,7 +33,7 @@ let lastOnlineTimestamp = null;
 let timesOffline: number = 0;
 let totalOfflineDuration = 0;
 let lastOfflineTimestamp = null;
-let firstTimestamp = (parseFloat(getCurrentDateTime().time)).toFixed(2);
+let firstTimestamp = getCurrentDateTime().time
 
 async function writeStatusesToFile(statuses: StatusObject[]) {
     const fileContent = `
@@ -47,7 +47,7 @@ async function writeStatusesToFile(statuses: StatusObject[]) {
       timesOnline: number;
       firstSeen: Date | null;
       timesOffline: number;
-      firstTimestamp :any;
+      firstTimestamp :string | null;
       lastSessionDuration: string | null;
     }
 
@@ -150,19 +150,18 @@ export default async (req: Request, res: Response): Promise<void> => {
                         name,
                         status: currentStatus,
                         timestamp: timestamp,
-                        onlinefor:
-                            currentStatus === "Online"
-                                ? `${totalOnlineDuration} seconds`
-                                : null,
-                        offlineSince:
-                            currentStatus === "Offline"
-                                ? `${totalOfflineDuration} seconds`
-                                : null,
+                        onlinefor: currentStatus === "Online"
+                            ? `${totalOnlineDuration} seconds`
+                            : null,
+                        offlineSince: currentStatus === "Offline"
+                            ? `${totalOfflineDuration} seconds`
+                            : null,
                         lastSeen,
                         timesOnline,
                         firstSeen,
                         firstTimestamp,
                         lastSessionDuration: `${lastSessionDuration} seconds`,
+                        timesOffline: 0
                     };
 
                     if (!firstSeen && currentStatus === "Online") {
