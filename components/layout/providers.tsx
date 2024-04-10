@@ -2,18 +2,14 @@
 import React from "react";
 import ThemeProvider from "./ThemeToggle/theme-provider";
 import { AuthContextProvider } from "@/core/providers/auth-provider";
-import { TooltipProvider } from "../ui/tooltip";
-export default function Providers({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 
-        <AuthContextProvider><TooltipProvider>{children}</TooltipProvider></AuthContextProvider>
+export default function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthContextProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <TooltipProvider>{children}</TooltipProvider>
       </ThemeProvider>
-    </>
+    </AuthContextProvider>
   );
 }

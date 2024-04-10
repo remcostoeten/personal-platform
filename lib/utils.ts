@@ -1,4 +1,5 @@
-import { type ClassValue, clsx } from "clsx";
+import { clsx, type ClassValue } from "clsx";
+import { customAlphabet } from "nanoid";
 import { twMerge } from "tailwind-merge";
 import { Active, DataRef, Over } from "@dnd-kit/core";
 import { ColumnDragData } from "@/components/kanban/board-column";
@@ -26,4 +27,11 @@ export function hasDraggableData<T extends Active | Over>(
   }
 
   return false;
+}
+
+export function generateId({ length = 8, prefix = "" } = {}) {
+  return `${prefix}${customAlphabet(
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+    length,
+  )()}`;
 }
