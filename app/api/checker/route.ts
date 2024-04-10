@@ -35,7 +35,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => { // Use Nex
 
         try {
             console.log("Navigating to WhatsApp");
-            await driver.get(SCRAPE_URL);
+            await driver.get(SCRAPE_UcRL);
             console.log("Successfully navigated to WhatsApp");
 
             console.log(`Finding and clicking element for ${name}`);
