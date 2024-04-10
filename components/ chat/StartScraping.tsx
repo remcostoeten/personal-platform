@@ -34,18 +34,13 @@ function StartScraping() {
         console.log("Status cleared:", data);
       })
       .catch((error) => {
-        console.error('Error:', error);
+        console.error("Error:", error);
       });
-  }
+  };
 
   return (
     <>
-      <Button
-        size="sm"
-        className="h-8 gap-1"
-        onClick={startScraping}
-        disabled={isLoading}
-      >
+      <Button size="sm" className="h-8 gap-1" onClick={startScraping}>
         {!isLoading ? (
           <>
             <PlusCircle className="h-3.5 w-3.5" />
@@ -53,16 +48,12 @@ function StartScraping() {
           </>
         ) : (
           <span className="flex gap-2">
-            <OnlineIndicator/>
+            <OnlineIndicator />
             Currently scraping..
           </span>
         )}
       </Button>
-      <Button
-        size="sm"
-        className="h-8 gap-1"
-        onClick={clearStatus}
-      >
+      <Button size="sm" className="h-8 gap-1" onClick={clearStatus}>
         Clear
       </Button>
     </>

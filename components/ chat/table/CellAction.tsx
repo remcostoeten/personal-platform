@@ -17,7 +17,7 @@ interface CellActionProps {
   data: StatusObject;
 }
 
-export const CellAction = ({data}: CellActionProps) => {
+export const CellAction = ({ data }: CellActionProps) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();

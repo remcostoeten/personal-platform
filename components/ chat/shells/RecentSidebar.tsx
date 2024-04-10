@@ -1,6 +1,6 @@
-'use client';
-import React, { useEffect, useState } from 'react'
-import { UserItem } from './UserItem'
+"use client";
+import React, { useEffect, useState } from "react";
+import { UserItem } from "./UserItem";
 
 interface User {
   name: string;
@@ -16,14 +16,13 @@ export default function RecentSidebar() {
       .then((response) => response.json())
       .then((data) => {
         setUsers(data);
-      })
+      });
   };
 
-
   useEffect(() => {
-    fetch('/api/users')
-      .then(response => response.json())
-      .then(data => {
+    fetch("/api/users")
+      .then((response) => response.json())
+      .then((data) => {
         const validUsers = data.filter((user: User) => user.email && user.uid);
         setUsers(validUsers);
         console.log("dd", validUsers);
@@ -39,9 +38,14 @@ export default function RecentSidebar() {
       <button onClick={fetchStatus}>Fetch</button>
       <div className="h-full">
         {users.map((user, index) => (
-          <UserItem key={index} name={user.name} email={user.email} imageUrl={user.imageUrl} />
+          <UserItem
+            key={index}
+            name={user.name}
+            email={user.email}
+            imageUrl={user.imageUrl}
+          />
         ))}
       </div>
     </div>
-  )
+  );
 }
