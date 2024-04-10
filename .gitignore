@@ -41,3 +41,4 @@ chrome-profile/**
 statusData.ts
 chromeprofile/
 -v
+statusData copy.ts
