@@ -29,14 +29,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import StartScraping from "@/components/ chat/StartScraping";
-import { StatusTable } from "@/components/ chat/table/StatusTable";
-import { columns } from "@/components/ chat/table/Columns";
+import StartScraping from "@/components/chat/StartScraping";
+import { StatusTable } from "@/components/chat/table/StatusTable";
+import { columns } from "@/components/chat/table/Columns";
 import { StatusObject, statuses as statusData } from "@/statusData";
 import { useMemo, useState } from "react";
-import ActivityMonitor from "@/components/ chat/ActivityMonitor";
+import ActivityMonitor from "@/components/chat/ActivityMonitor";
 import OnlineIndicator from "@/components/effects/OnlineIndicator";
-import { RESULTS_PER_PAGE } from "@/components/ chat/config";
+import { RESULTS_PER_PAGE } from "@/components/chat/config";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function Dashboard() {
