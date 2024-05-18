@@ -1,3 +1,10 @@
+/*
+Prety old version. Newest version is a bit cleaner,
+but currently over in a private repository
+Due to deployment problems with chromedriver
+I'll try porting it over to Puppeteer, if I find the time
+*/
+
 import { Builder, By, until } from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 import path from "path";
