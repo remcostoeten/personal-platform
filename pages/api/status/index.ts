@@ -1,4 +1,10 @@
 /*
+Vercel + pupeteer gotta read sometime
+https://dev.to/joelgriffith/vercel-puppeteer-4l7c?ref=dailydev
+*/
+
+/*
+
 Prety old version. Newest version is a bit cleaner,
 but currently over in a private repository
 Due to deployment problems with chromedriver
